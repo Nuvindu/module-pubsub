@@ -1,0 +1,11 @@
+[package]
+org = "nuvindu_dias"
+name = "pubsub"
+version = "0.1.0"
+distribution = "2201.0.1"
+
+[[dependency]]
+org = "nuvindu"
+name = "pipe"
+version = "0.1.0"
+repository = "local"
