@@ -82,7 +82,7 @@ public class PubSub {
 		self.events[eventName] = [];
 	}
 
-	public function gracefulShutDown() returns error? {
+	public function gracefulShutdown() returns error? {
 		self.isClosed = true;
 		foreach pipe:Pipe[] pipes in self.events {
 			foreach pipe:Pipe pipe in pipes {
@@ -95,7 +95,7 @@ public class PubSub {
 		self.events.removeAll();
 	}
 
-	public function forceShutDown() {
+	public function forceShutdown() {
 		self.isClosed = true;
 		foreach pipe:Pipe[] pipes in self.events {
 			foreach pipe:Pipe pipe in pipes {

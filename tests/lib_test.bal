@@ -12,7 +12,7 @@ import ballerina/test;
 @test:Config {}
 function testPubSub() returns error? {
     PubSub pubsub = new();
-    stream<any, error?> subscribe = pubsub.subscribe("topic");
+    stream<any, error?> subscribe = check pubsub.subscribe("topic");
     error? publish = pubsub.publish("hello", "topic");
     if publish is error {
         return publish;
