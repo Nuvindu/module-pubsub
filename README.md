@@ -1,24 +1,74 @@
 # Pub/Sub Package for Ballerina
 
-## Summary
+## Build from the source
 
-The publish/subscribe model (a.k.a. pub/sub) is a message communication model which decouples the message senders from the receivers. This proposal is to introduce a Pub/Sub package for Ballerina.
+### Set up the prerequisites
 
-## Goals
+1. Download and install Java SE Development Kit (JDK) version 11 (from one of the following locations).
+   * [Oracle](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+   
+   * [OpenJDK](https://adoptopenjdk.net/)
+   
+        > **Note:** Set the JAVA_HOME environment variable to the path name of the directory into which you installed JDK.
+     
+2. Export your Github Personal access token with the read package permissions as follows.
+   
+              export packageUser=<Username>
+              export packagePAT=<Personal access token>
 
-* Include the Pub/Sub package into Ballerina standard library packages.
+### Build the source
 
-## Motivation
+Execute the commands below to build from source.
 
-In Ballerina services, there can be some cases where data has to be published over multiple clients when an event is triggered. Each time, it requires some redundant coding and error handling to properly implement this event-driven architecture. The Pub/Sub model can provide an interface to hide the complexities in message distribution and provide APIs for the users to reduce the redundancy of the code and optimize the error handling.
+1. To build the library:
+   ```    
+   ./gradlew clean build
+   ```
 
-## Description
+2. To run the integration tests:
+   ```
+   ./gradlew clean test
+   ```
+3. To build the module without the tests:
+   ```
+   ./gradlew clean build -x test
+   ```
+4. To debug module implementation:
+   ```
+   ./gradlew clean build -Pdebug=<port>
+   ./gradlew clean test -Pdebug=<port>
+   ```
+5. To debug the module with Ballerina language:
+   ```
+   ./gradlew clean build -PbalJavaDebug=<port>
+   ./gradlew clean test -PbalJavaDebug=<port>
+   ```
+6. Publish ZIP artifact to the local `.m2` repository:
+   ```
+   ./gradlew clean build publishToMavenLocal
+   ```
+7. Publish the generated artifacts to the local Ballerina central repository:
+   ```
+   ./gradlew clean build -PpublishToLocalCentral=true
+   ```
+8. Publish the generated artifacts to the Ballerina central repository:
+   ```
+   ./gradlew clean build -PpublishToCentral=true
+   ```
 
-Pub/Sub is a messaging pattern that consists of `publishers` sending data and `subscribers` receiving data. A logical channel called `topic` is used as the medium for publishers and subscribers to communicate. Users can subscribe to these topics. When data is published to one of the topics, it will broadcast that data to all the subscribers of the topic. In this approach, the senders and receivers are not directly connected. 
+## Contribute to Ballerina
 
-In the proposed model, `Pipes` are used to transfer data from publishers to subscribers. It creates a new `Pipe` instance for each subscriber in a topic. In the `subscribe` method it returns a stream so that clients can receive data through that stream whenever an event occurs. The event is triggered when data is published on a topic. Then, The `publish` method, produces the given data to all the pipes of that topic. Since the pipes have producer-consumer architecture, data can be produced and consumed in parallel processes.
+As an open source project, Ballerina welcomes contributions from the community. 
 
+For more information, go to the [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md).
 
-### Shutdown
+## Code of conduct
 
-If a Pub/Sub model is shut down, users may no longer be able to use its APIs. But it has some considerations when it comes to graceful shutdown. Because there can be pipes in the middle of data transferring when the shutdown method is called. Therefore in the `gracefulShutdown` method, first it must gracefully close all the pipes in the Pub/Sub instance. Then the rest of the attributes in the Pub/Sub must be cleared and kept until the garbage collector handles them. There is a `forceShutdown` method to immediately shut down the Pub/Sub. There, it closes all the pipes using the `immediateClose` method. And the rest of the function is the same as in graceful shutdown.
+All contributors are encouraged to read the [Ballerina Code of Conduct](https://ballerina.io/code-of-conduct).
+
+## Useful links
+
+* Chat live with us via our [Slack channel](https://ballerina.io/community/slack/).
+* Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
+* For more information go to the [`random` library](https://lib.ballerina.io/ballerina/random/latest).
+* For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/swan-lake/learn/by-example/).

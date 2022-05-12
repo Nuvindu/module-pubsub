@@ -1,0 +1,15 @@
+[package]
+org = "nuvindu_dias"
+name = "pubsub"
+version = "0.1.0"
+authors = ["Ballerina"]
+keywords = ["pubsub"]
+repository = "https://github.com/Nuvindu/module-pubsub"
+license = ["Apache-2.0"]
+distribution = "2201.0.1"
+
+[[dependency]]
+org = "nuvindu_dias"
+name = "pipe"
+version = "0.1.0"
+repository = "local"

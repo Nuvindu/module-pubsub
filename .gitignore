@@ -1,1 +1,11 @@
+# IDE-related files
+.idea
+.code
+.project
+.settings
+.vscode
+
+# Build Files
+.gradle
 target
+build
