@@ -21,11 +21,10 @@ plugins {
 }
 
 include ':checkstyle'
-include ':pubsub-native'
 include ':pubsub-ballerina'
+include ':examples'
 
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
-project(':pubsub-native').projectDir = file('native')
 project(':pubsub-ballerina').projectDir = file('ballerina')
 
 gradleEnterprise {

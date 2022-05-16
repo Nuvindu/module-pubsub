@@ -79,5 +79,6 @@ release {
 }
 
 task build {
-    dependsOn('pubsub-ballerina:build')
+    dependsOn(':pubsub-ballerina:build')
+    dependsOn(':examples:build')
 }
