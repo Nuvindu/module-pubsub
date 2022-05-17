@@ -1,31 +1,48 @@
 import ballerina/io;
 import nuvindu_dias/pubsub;
+import ballerina/lang.runtime;
 
 public function main() returns error? {
     pubsub:PubSub pubsub = new();
     map<stream<any,error?>> receivers = {};
-    string[] names = ["kim", "mike", "nacho"];
+    string[] names = ["Mike", "Kim", "Jimmy"];
 
     foreach string name in names {
         receivers[name] = check pubsub.subscribe("topic");        
     }
-    foreach int i in 1..<4 {
-        error? publish = pubsub.publish(i.toString(), "topic");
-        if publish is error {
-            io:println(publish);
+    
+    string[] news = check getNews();
+    
+    worker A {
+        foreach string data in news {
+            error? publish = pubsub.publish(data, "topic");
+            if publish is error {
+                io:println(publish);
+            }
+            runtime:sleep(5);
+        }
+        error? gracefulShutdown = pubsub.gracefulShutdown();
+        if gracefulShutdown !is error {
+            io:println("Pub/Sub is closed.");
         }
     }
-    foreach int i in 0..<3 {
-        foreach string key in receivers.keys() {
-            record {| any value; |}|error? next = receivers.get(key).next();
-            if next is error? {
-                break;
-            }
-            io:println(key,": ", next.value);
-        }   
+
+    @strand {
+        thread: "any" 
     }
-    error? gracefulShutDown = pubsub.gracefulShutdown();
-    if gracefulShutDown is error {
-        io:println(gracefulShutDown);
-    }  
+    worker B {
+        foreach int i in 0..<3 {
+            foreach string key in receivers.keys() {
+                if i == 1 && key == "Mike" {
+                    error? close = receivers.get(key).close();
+                    io:print(close);
+                }
+                record {| any value; |}|error? next = receivers.get(key).next();
+                if next !is error? {
+                    io:println(key,": ", next.value);
+                }
+            }
+            io:println("..............................");
+        }
+    }
 }
