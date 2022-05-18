@@ -6,6 +6,7 @@ The publish/subscribe model (a.k.a. pub/sub) is a message communication model wh
 
 ## Goals
 
+* Create a new package for Ballerina using the Publish/Subscribe pattern.
 * Include the Pub/Sub package into Ballerina standard library packages.
 
 ## Motivation
@@ -14,9 +15,11 @@ In Ballerina services, there can be some cases where data has to be published ov
 
 ## Description
 
-Pub/Sub is a messaging pattern that consists of `publishers` sending data and `subscribers` receiving data. A logical channel called `topic` is used as the medium for publishers and subscribers to communicate. Users can subscribe to these topics. When data is published to one of the topics, it will broadcast that data to all the subscribers of the topic. In this approach, the senders and receivers are not directly connected. 
+Pub/Sub is a messaging pattern that consists of `publishers` sending data and `subscribers` receiving data. A logical channel called `topic` is used as the medium for publishers and subscribers to communicate. Users can subscribe to these topics. When data is published to one of the topics, it will broadcast that data to all the subscribers of the topic. In this approach, the senders and receivers are not directly connected. </br>
 
-In the proposed model, `Pipes` are used to transfer data from publishers to subscribers. It creates a new `Pipe` instance for each subscriber in a topic. In the `subscribe` method it returns a stream so that clients can receive data through that stream whenever an event occurs. The event is triggered when data is published on a topic. Then, The `publish` method, produces the given data to all the pipes of that topic. Since the pipes have producer-consumer architecture, data can be produced and consumed in parallel processes.
+In the proposed model, `Pipes` are used to transfer data from publishers to subscribers. It creates a new `Pipe` instance for each subscriber in a topic. In the `subscribe` method it returns a stream so that clients can receive data through that stream whenever an event occurs. The event is triggered when data is published on a topic. Then, The `publish` method, produces the given data to all the pipes of that topic. Since the pipes have producer-consumer architecture, data can be produced and consumed in parallel processes. </br>
+
+Although the Pub/Sub model is for message communication purposes, it allows any type of data to be published.
 
 
 ### Shutdown
