@@ -18,21 +18,25 @@ public class PubSub {
     # + return - Return () if data is successfully published. Otherwise return an error.
     public function publish(any element, string eventName, decimal timeout = 30) returns error? {
         if self.isClosed is true {
-            return error("Data cannot be published to a closed PubSub.");
+            return error Error("Data cannot be published to a closed PubSub.");
         }
-        if self.events.hasKey(eventName) is true {
-            pipe:Pipe[] pipes = <pipe:Pipe[]>self.events[eventName];
-            foreach pipe:Pipe pipe in pipes {
-                if pipe.isClosed() is false {
-                    error? produce = pipe.produce(element, timeout);
-                    if produce is error {
-                        return produce;
-                    }
-                } else {
-                    error? unsubscribeResult = self.unsubscribe(eventName, pipe);
-                    if unsubscribeResult is error {
-                        return unsubscribeResult;
-                    }
+        if self.events.hasKey(eventName) is false {
+            error? event = self.addEvent(eventName);
+            if event is error {
+                return event;
+            }
+        }
+        pipe:Pipe[] pipes = <pipe:Pipe[]>self.events[eventName];
+        foreach pipe:Pipe pipe in pipes {
+            if pipe.isClosed() is false {
+                error? produce = pipe.produce(element, timeout);
+                if produce is error {
+                    return produce;
+                }
+            } else {
+                error? unsubscribeResult = self.unsubscribe(eventName, pipe);
+                if unsubscribeResult is error {
+                    return unsubscribeResult;
                 }
             }
         }
@@ -46,9 +50,9 @@ public class PubSub {
     # + return - Return stream<any, error?> if the user is successfully subscribed to the topic. 
 	# 			 Otherwise return an error.
     public function subscribe(string eventName, int 'limit = 5, decimal timeout = 30)
-    returns stream<any, error?>|error {
+        returns stream<any, error?>|error {
         if self.isClosed is true {
-            return error("Users cannot subscribe to a closed PubSub.");
+            return error Error("Users cannot subscribe to a closed PubSub.");
         }
         pipe:Pipe pipe = new('limit);
         error? subscriber = self.addSubscriber(eventName, pipe);
@@ -63,9 +67,9 @@ public class PubSub {
     # + eventName - The name of the topic which is used to unsubscribe.
     # + pipe - The pipe instance releavant to the user
     # + return - Return () if the user is successfully unsubscribed. Otherwise return an error.
-    public function unsubscribe(string eventName, pipe:Pipe pipe) returns error? {
+    private function unsubscribe(string eventName, pipe:Pipe pipe) returns error? {
         if self.isClosed is true {
-            return error("Unsubscribing is not allowed in a closed PubSub.");
+            return error Error("Unsubscribing is not allowed in a closed PubSub.");
         }
         pipe:Pipe[] pipes = <pipe:Pipe[]>self.events[eventName];
         pipe:Pipe[] modifiedPipes = [];
@@ -77,9 +81,9 @@ public class PubSub {
         self.events[eventName] = modifiedPipes;
     }
 
-    function addSubscriber(string eventName, pipe:Pipe pipe) returns error? {
+    private function addSubscriber(string eventName, pipe:Pipe pipe) returns error? {
         if self.isClosed is true {
-            return error("Unsubscribing is not allowed in a closed PubSub.");
+            return error Error("Unsubscribing is not allowed in a closed PubSub.");
         }
         pipe:Pipe[]? pipes = self.events[eventName];
         if pipes == () {
@@ -96,10 +100,10 @@ public class PubSub {
     # + return - Return () if the event is successfully added to the PubSub. Otherwise return an error.
     public function addEvent(string eventName) returns error? {
         if self.isClosed is true {
-            return error("Unsubscribing is not allowed in a closed PubSub.");
+            return error Error("Events cannot be added to a closed PubSub.");
         }
-        if self.events.hasKey(eventName) {
-            return error("Event name already exists.");
+        if self.events.hasKey(eventName) is true {
+            return error Error("Event name already exists.");
         }
         self.events[eventName] = [];
     }
