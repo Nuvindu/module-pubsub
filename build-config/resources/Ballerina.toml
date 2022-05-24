@@ -1,8 +1,8 @@
 [package]
 org = "nuvindu_dias"
 name = "pubsub"
-version = "0.1.0"
-authors = ["Ballerina"]
+version = "@toml.version@"
+authors = ["Nuvindu"]
 keywords = ["pubsub"]
 repository = "https://github.com/Nuvindu/module-pubsub"
 license = ["Apache-2.0"]

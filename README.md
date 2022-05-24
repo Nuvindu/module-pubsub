@@ -1,4 +1,7 @@
-# Pub/Sub Package for Ballerina
+Ballerina Pub/Sub Library
+===================
+
+  [![GitHub Last Commit](https://img.shields.io/github/last-commit/Nuvindu/module-pubsub.svg)](https://github.com/Nuvindu/module-pubsub/commits/main)
 
 ## Build from the source
 

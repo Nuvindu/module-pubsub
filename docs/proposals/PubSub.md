@@ -1,5 +1,11 @@
 # Proposal: Pub/Sub Package for Ballerina
 
+_Owners_: @Nuvindu     
+_Reviewers_: @shafreenAnfar @ThisaruGuruge       
+_Created_: 2021/05/09  
+_Updated_: 2022/05/24  
+_Issue_: [#2907](https://github.com/ballerina-platform/ballerina-standard-library/issues/2907)
+
 ## Summary
 
 The publish/subscribe model (a.k.a. pub/sub) is a message communication model which decouples the message senders from the receivers. This proposal is to introduce a Pub/Sub package for Ballerina.

@@ -1,136 +1,140 @@
 import nuvindu_dias/pipe;
 
+# Description
 public class PubSub {
-    private map<pipe:Pipe[]> events;
+    private map<pipe:Pipe[]> topics;
     private boolean isClosed;
+    private boolean autoCreateTopics;
 
-    # Iniating a new PubSub Instance.
-    public function init() {
-        self.events = {};
+    # # Creates a new `pubsub:PubSub` instance.
+    #
+    # + autoCreateTopics - Topics are automatically created when publishing/subscribing to a non-existing topics
+    public function init(boolean autoCreateTopics = true) {
+        self.topics = {};
         self.isClosed = false;
+        self.autoCreateTopics = autoCreateTopics;
     }
 
-    # Push data into a Topic of the PubSub. That will be broadcast to all the subscribers of that topic.
+    # Publishes data into a Topic of the PubSub. That will be broadcast to all the subscribers of that topic.
     #
-    # + element - Data that needs to be published to the PubSub. Can be any type.  
-    # + eventName - The name of the topic which is used to publish data. 
-    # + timeout - The maximum waiting period to hold data. Default timeout is 30 seconds.
-    # + return - Return () if data is successfully published. Otherwise return an error.
-    public function publish(any element, string eventName, decimal timeout = 30) returns error? {
+    # + data - Data that needs to be published to PubSub. Can be `any` type
+    # + topicName - The name of the topic which is used to publish data
+    # + timeout - The maximum waiting period to hold data (Default timeout: 30 seconds)
+    # + return - Returns `()` if data is successfully published. Otherwise, returns a `pubsub:Error`
+    public function publish(any data, string topicName, decimal timeout = 30) returns Error? {
         if self.isClosed is true {
             return error Error("Data cannot be published to a closed PubSub.");
         }
-        if self.events.hasKey(eventName) is false {
-            error? event = self.addEvent(eventName);
-            if event is error {
-                return event;
+        if self.topics.hasKey(topicName) is false {
+            if !self.autoCreateTopics {
+                return error Error("Topic Name does not exist.");
             }
+            check self.createTopic(topicName);
         }
-        pipe:Pipe[] pipes = <pipe:Pipe[]>self.events[eventName];
+        pipe:Pipe[] pipes = <pipe:Pipe[]>self.topics[topicName];
         foreach pipe:Pipe pipe in pipes {
             if pipe.isClosed() is false {
-                error? produce = pipe.produce(element, timeout);
+                error? produce = pipe.produce(data, timeout);
                 if produce is error {
-                    return produce;
+                    return error Error("Failed to publish data.", produce);
                 }
             } else {
-                error? unsubscribeResult = self.unsubscribe(eventName, pipe);
-                if unsubscribeResult is error {
-                    return unsubscribeResult;
-                }
+                check self.unsubscribe(topicName, pipe);
             }
         }
     }
 
-    # Subscribe to a topic in the PubSub. Subscriber will receive the data published into that topic.
+    # Subscribes to a topic in the PubSub. Subscriber will receive the data published into that topic.
     #
-    # + eventName - The name of the topic which is used to subscribe.
-    # + 'limit - The maximum limit of data that holds in the Pipe at once. Default value is five.
-    # + timeout - The maximum waiting period to receive data. Default timeout is 30 seconds.
-    # + return - Return stream<any, error?> if the user is successfully subscribed to the topic. 
-	# 			 Otherwise return an error.
-    public function subscribe(string eventName, int 'limit = 5, decimal timeout = 30)
-        returns stream<any, error?>|error {
-        if self.isClosed is true {
+    # + topicName - The name of the topic which is used to subscribe
+    # + 'limit - The maximum number of entries that holds in the Pipe at once. Default value is five
+    # + timeout - The maximum waiting period to receive data (Default timeout: 30 seconds)
+    # + return - Returns `stream<any, error?>` if the user is successfully subscribed to the topic.
+	# 			 Otherwise returns a `pubsub:Error`
+    public function subscribe(string topicName, int 'limit = 5, decimal timeout = 30)
+        returns stream<any, error?>|Error {
+        if self.isClosed {
             return error Error("Users cannot subscribe to a closed PubSub.");
         }
         pipe:Pipe pipe = new('limit);
-        error? subscriber = self.addSubscriber(eventName, pipe);
-        if subscriber is error {
-            return subscriber;
-        }
+        check self.addSubscriber(topicName, pipe);
         return pipe.consumeStream(timeout);
     }
 
-    # Unsubscribe a user from a topic in the PubSub. User will no longer receive published data on that topic.
-    #
-    # + eventName - The name of the topic which is used to unsubscribe.
-    # + pipe - The pipe instance releavant to the user
-    # + return - Return () if the user is successfully unsubscribed. Otherwise return an error.
-    private function unsubscribe(string eventName, pipe:Pipe pipe) returns error? {
-        if self.isClosed is true {
+    private function unsubscribe(string topicName, pipe:Pipe pipe) returns Error? {
+        if self.isClosed {
             return error Error("Unsubscribing is not allowed in a closed PubSub.");
         }
-        pipe:Pipe[] pipes = <pipe:Pipe[]>self.events[eventName];
-        pipe:Pipe[] modifiedPipes = [];
-        foreach pipe:Pipe element in pipes {
-            if pipe !== element {
-                modifiedPipes.push(element);
+        pipe:Pipe[] pipes = <pipe:Pipe[]>self.topics[topicName];
+        int i = 0;
+        while i < pipes.length() {
+            if pipe === pipes[i] {
+                pipe:Pipe _ = pipes.remove(i);
+                break;
             }
+            i += 1;
         }
-        self.events[eventName] = modifiedPipes;
     }
 
-    private function addSubscriber(string eventName, pipe:Pipe pipe) returns error? {
-        if self.isClosed is true {
-            return error Error("Unsubscribing is not allowed in a closed PubSub.");
+    private function addSubscriber(string topicName, pipe:Pipe pipe) returns Error? {
+        if self.isClosed {
+            return error Error("Subscribing is not allowed in a closed PubSub.");
         }
-        pipe:Pipe[]? pipes = self.events[eventName];
+        if self.topics.hasKey(topicName) is false {
+            if !self.autoCreateTopics {
+                return error Error("Topic Name does not exist.");
+            }
+            check self.createTopic(topicName);
+        }
+        pipe:Pipe[]? pipes = self.topics[topicName];
         if pipes == () {
-            self.events[eventName] = [pipe];
+            self.topics[topicName] = [pipe];
         } else {
             pipes.push(pipe);
-            self.events[eventName] = pipes;
+            self.topics[topicName] = pipes;
         }
     }
 
-    # Adding a topic to the PubSub
+    # Creates a new topic to the PubSub.
     #
-    # + eventName - The name of the topic which is used to publish/subscribe.
-    # + return - Return () if the event is successfully added to the PubSub. Otherwise return an error.
-    public function addEvent(string eventName) returns error? {
-        if self.isClosed is true {
-            return error Error("Events cannot be added to a closed PubSub.");
+    # + topic - The name of the topic which is used to publish/subscribe
+    # + return - Returns `()` if the topic is successfully added to the PubSub. Otherwise returns a `pubsub:Error`
+    public function createTopic(string topic) returns Error? {
+        if self.isClosed {
+            return error Error("Topics cannot be added to a closed PubSub.");
         }
-        if self.events.hasKey(eventName) is true {
-            return error Error("Event name already exists.");
+        if self.topics.hasKey(topic) {
+            return error Error("Topic name already exists.");
         }
-        self.events[eventName] = [];
+        self.topics[topic] = [];
     }
 
-    # Close the PubSub gracefully. Waits for some period until all the pipes in the PubSub is gracefully closed.
-    # + return - Return (), if the PubSub is successfully closed. Otherwise returns an error.
-    public function gracefulShutdown() returns error? {
+    # Closes the PubSub gracefully. Waits for some grace period until all the pipes in the PubSub is gracefully closed.
+    # 
+    # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
+    public function gracefulShutdown() returns Error? {
         self.isClosed = true;
-        foreach pipe:Pipe[] pipes in self.events {
+        foreach pipe:Pipe[] pipes in self.topics {
             foreach pipe:Pipe pipe in pipes {
                 error? gracefulClose = pipe.gracefulClose();
                 if gracefulClose is error {
-                    return gracefulClose;
+                    return error Error("Failed to shut down the pubsub", gracefulClose);
                 }
             }
         }
-        self.events.removeAll();
+        self.topics.removeAll();
     }
 
-    # Close all the Pipes in the PubSub instantly using the immediate close method.
-    public function forceShutdown() {
+    # Closes the PubSub instantly. All the pipes will be immediately closed.
+    # 
+    # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
+    public function forceShutdown() returns Error? {
         self.isClosed = true;
-        foreach pipe:Pipe[] pipes in self.events {
+        foreach pipe:Pipe[] pipes in self.topics {
             foreach pipe:Pipe pipe in pipes {
                 pipe.immediateClose();
             }
         }
-        self.events.removeAll();
+        self.topics.removeAll();
     }
 }
