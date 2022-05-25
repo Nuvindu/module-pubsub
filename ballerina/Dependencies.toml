@@ -24,26 +24,26 @@ modules = [
 ]
 
 [[package]]
-org = "nuvindu_dias"
+org = "nuvindu"
 name = "pipe"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
 modules = [
-	{org = "nuvindu_dias", packageName = "pipe", moduleName = "pipe"}
+	{org = "nuvindu", packageName = "pipe", moduleName = "pipe"}
 ]
 
 [[package]]
-org = "nuvindu_dias"
+org = "nuvindu"
 name = "pubsub"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "test"},
-	{org = "nuvindu_dias", name = "pipe"}
+	{org = "nuvindu", name = "pipe"}
 ]
 modules = [
-	{org = "nuvindu_dias", packageName = "pubsub", moduleName = "pubsub"}
+	{org = "nuvindu", packageName = "pubsub", moduleName = "pubsub"}
 ]
 
 
