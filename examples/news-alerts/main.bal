@@ -15,7 +15,7 @@ public function main() returns error? {
     
     worker A {
         foreach string data in news {
-            error? publish = pubsub.publish(data, "topic");
+            error? publish = pubsub.publish("topic", data);
             if publish is error {
                 io:println(publish);
             }

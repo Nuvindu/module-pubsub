@@ -21,7 +21,7 @@ public class PubSub {
     # + topicName - The name of the topic which is used to publish data
     # + timeout - The maximum waiting period to hold data (Default timeout: 30 seconds)
     # + return - Returns `()` if data is successfully published. Otherwise, returns a `pubsub:Error`
-    public function publish(any data, string topicName, decimal timeout = 30) returns Error? {
+    public function publish(string topicName, any data, decimal timeout = 30) returns Error? {
         if self.isClosed {
             return error Error("Data cannot be published to a closed PubSub.");
         }

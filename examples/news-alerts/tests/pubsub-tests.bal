@@ -11,7 +11,7 @@ function testPubSub() returns error? {
         return subscribe;
     }
     string expectedValue = "data";
-    error? publish = pubsub.publish(expectedValue, "testTopic");
+    error? publish = pubsub.publish("testTopic", expectedValue);
     if publish is error {
         return publish;
     }
@@ -32,7 +32,7 @@ function testGracefulCloseInPubSub() returns error? {
         return gracefulShutDown;
     }
     string expectedValue = "Data cannot be published to a closed PubSub.";
-    error? publish = pubsub.publish("data", "topic");
+    error? publish = pubsub.publish("topic", "data");
     if publish is error {
         test:assertEquals(expectedValue, publish.message().toString());
     }
