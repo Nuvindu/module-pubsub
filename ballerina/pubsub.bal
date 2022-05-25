@@ -1,4 +1,4 @@
-import nuvindu_dias/pipe;
+import nuvindu/pipe;
 
 # Description
 public class PubSub {
@@ -22,10 +22,10 @@ public class PubSub {
     # + timeout - The maximum waiting period to hold data (Default timeout: 30 seconds)
     # + return - Returns `()` if data is successfully published. Otherwise, returns a `pubsub:Error`
     public function publish(any data, string topicName, decimal timeout = 30) returns Error? {
-        if self.isClosed is true {
+        if self.isClosed {
             return error Error("Data cannot be published to a closed PubSub.");
         }
-        if self.topics.hasKey(topicName) is false {
+        if !self.topics.hasKey(topicName) {
             if !self.autoCreateTopics {
                 return error Error("Topic Name does not exist.");
             }
@@ -33,7 +33,7 @@ public class PubSub {
         }
         pipe:Pipe[] pipes = <pipe:Pipe[]>self.topics[topicName];
         foreach pipe:Pipe pipe in pipes {
-            if pipe.isClosed() is false {
+            if !pipe.isClosed() {
                 error? produce = pipe.produce(data, timeout);
                 if produce is error {
                     return error Error("Failed to publish data.", produce);
@@ -80,7 +80,7 @@ public class PubSub {
         if self.isClosed {
             return error Error("Subscribing is not allowed in a closed PubSub.");
         }
-        if self.topics.hasKey(topicName) is false {
+        if !self.topics.hasKey(topicName) {
             if !self.autoCreateTopics {
                 return error Error("Topic Name does not exist.");
             }

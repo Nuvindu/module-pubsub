@@ -1,5 +1,5 @@
 [package]
-org = "nuvindu_dias"
+org = "nuvindu"
 name = "pubsub_example"
 version = "0.1.0"
 distribution = "2201.0.1"
@@ -8,13 +8,13 @@ distribution = "2201.0.1"
 observabilityIncluded = true
 
 [[dependency]]
-org = "nuvindu_dias"
+org = "nuvindu"
 name = "pipe"
 version = "0.1.0"
 repository = "local"
 
 [[dependency]]
-org = "nuvindu_dias"
+org = "nuvindu"
 name = "pubsub"
 version = "0.1.0"
 repository = "local"

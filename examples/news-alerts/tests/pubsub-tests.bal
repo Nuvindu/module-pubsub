@@ -1,4 +1,4 @@
-import nuvindu_dias/pubsub;
+import nuvindu/pubsub;
 import ballerina/test;
 
 @test:Config {

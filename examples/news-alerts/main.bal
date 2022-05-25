@@ -1,5 +1,5 @@
 import ballerina/io;
-import nuvindu_dias/pubsub;
+import nuvindu/pubsub;
 import ballerina/lang.runtime;
 
 public function main() returns error? {
