@@ -36,7 +36,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "log"
-version = "2.2.0"
+version = "2.2.1"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "io"},
