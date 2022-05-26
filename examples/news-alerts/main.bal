@@ -10,7 +10,6 @@ public function main() returns error? {
     foreach string name in names {
         receivers[name] = check pubsub.subscribe("topic");        
     }
-    
     string[] news = check getNews();
     
     worker A {
@@ -21,9 +20,9 @@ public function main() returns error? {
             }
             runtime:sleep(5);
         }
-        error? gracefulShutdown = pubsub.gracefulShutdown();
-        if gracefulShutdown !is error {
-            io:println("Pub/Sub is closed.");
+        pubsub:Error? gracefulShutdown = pubsub.gracefulShutdown();
+        if gracefulShutdown is pubsub:Error {
+            io:println(gracefulShutdown);
         }
     }
 

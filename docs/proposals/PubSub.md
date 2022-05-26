@@ -3,7 +3,7 @@
 _Owners_: @Nuvindu     
 _Reviewers_: @shafreenAnfar @ThisaruGuruge       
 _Created_: 2021/05/09  
-_Updated_: 2022/05/24  
+_Updated_: 2022/05/26  
 _Issue_: [#2907](https://github.com/ballerina-platform/ballerina-standard-library/issues/2907)
 
 ## Summary
@@ -23,7 +23,29 @@ In Ballerina services, there can be some cases where data has to be published ov
 
 Pub/Sub is a messaging pattern that consists of `publishers` sending data and `subscribers` receiving data. A logical channel called `topic` is used as the medium for publishers and subscribers to communicate. Users can subscribe to these topics. When data is published to one of the topics, it will broadcast that data to all the subscribers of the topic. In this approach, the senders and receivers are not directly connected. </br>
 
-In the proposed model, `Pipes` are used to transfer data from publishers to subscribers. It creates a new `Pipe` instance for each subscriber in a topic. In the `subscribe` method it returns a stream so that clients can receive data through that stream whenever an event occurs. The event is triggered when data is published on a topic. Then, The `publish` method, produces the given data to all the pipes of that topic. Since the pipes have producer-consumer architecture, data can be produced and consumed in parallel processes. </br>
+```ballerina
+    public class PubSub {
+
+        public function init(boolean autoCreateTopics = true) { ...//sets to automatically create topics publishing/subscribing }
+
+        // Publishes data into a `Topic`. Data will be broadcast to all the subscribers of that topic.
+        public isolated function publish(string topicName, any data, decimal timeout = 30) returns Error?
+
+        // Subscribes to a `Topic` in the PubSub. Subscriber will receive the data published into that topic.
+        public function subscribe(string topicName, int 'limit = 5, decimal timeout = 30) returns stream<any, error?>|Error
+
+        // Creates a new `Topic` in the PubSub.
+        public isolated function createTopic(string topic) returns Error?
+
+        // Closes the PubSub gracefully. Waits for some grace period until all the pipes in the PubSub is gracefully closed.
+        public isolated function gracefulShutdown() returns Error?
+
+        // Closes the PubSub instantly. All the pipes will be immediately closed.
+        public isolated function forceShutdown()
+    }
+```
+
+In the proposed model, `Pipes` are used to transfer data from publishers to subscribers. It creates a new `Pipe` instance for each subscriber in a topic. In the `subscribe` method it returns a stream so that clients can receive data through that stream whenever an event occurs. The event is triggered when data is published on a topic. Then, The `publish` method, produces the given data to all the pipes of that topic. Since the pipes have producer-consumer architecture, data can be produced and consumed in parallel processes. Topics can either sets to automatically create when subscribing or publishing or users can use the `createTopic` method to create them. </br>
 
 Although the Pub/Sub model is for message communication purposes, it allows any type of data to be published.
 
