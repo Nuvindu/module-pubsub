@@ -8,7 +8,7 @@ public class PubSub {
 
     # # Creates a new `pubsub:PubSub` instance.
     #
-    # + autoCreateTopics - Topics are automatically created when publishing/subscribing to a non-existing topics
+    # + autoCreateTopics - `Topics` are automatically created when publishing/subscribing to a non-existing topics
     public isolated function init(boolean autoCreateTopics = true) {
         self.topics = {};
         self.isClosed = false;

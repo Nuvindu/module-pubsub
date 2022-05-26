@@ -26,7 +26,7 @@ Pub/Sub is a messaging pattern that consists of `publishers` sending data and `s
 ```ballerina
     public class PubSub {
 
-        public function init(boolean autoCreateTopics = true) { ...//sets to automatically create topics publishing/subscribing }
+        public function init(boolean autoCreateTopics = true) { ...//sets to automatically create topics }
 
         // Publishes data into a `Topic`. Data will be broadcast to all the subscribers of that topic.
         public isolated function publish(string topicName, any data, decimal timeout = 30) returns Error?
@@ -45,9 +45,9 @@ Pub/Sub is a messaging pattern that consists of `publishers` sending data and `s
     }
 ```
 
-In the proposed model, `Pipes` are used to transfer data from publishers to subscribers. It creates a new `Pipe` instance for each subscriber in a topic. In the `subscribe` method it returns a stream so that clients can receive data through that stream whenever an event occurs. The event is triggered when data is published on a topic. Then, The `publish` method, produces the given data to all the pipes of that topic. Since the pipes have producer-consumer architecture, data can be produced and consumed in parallel processes. Topics can either sets to automatically create when subscribing or publishing or users can use the `createTopic` method to create them. </br>
+In the proposed model, `Pipes` are used to transfer data from publishers to subscribers. PubSub creates a new `Pipe` instance for each subscriber in a topic. In the `subscribe` method it returns a stream so that clients can receive data through that stream whenever an event occurs. The event is triggered when data is published on a topic. Then, The `publish` method, produces the given data to all the pipes of that topic. Since the pipes have producer-consumer architecture, data can be produced and consumed in parallel processes. Topics can either sets to automatically create when publishing/subscribing or users can use the `createTopic` method to create them. </br>
 
-Although the Pub/Sub model is for message communication purposes, it allows any type of data to be published.
+Although the Pub/Sub model is for message communication purposes, it allows `any` type of data to be published.
 
 
 ### Shutdown
