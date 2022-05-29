@@ -6,20 +6,13 @@ import ballerina/test;
 }
 function testPubSub() returns error? {
     pubsub:PubSub pubsub = new();
-    stream<any, error?>|error subscribe = pubsub.subscribe("testTopic");
-    if subscribe is error {
-        return subscribe;
-    }
+    stream<any, error?> subscribe = check pubsub.subscribe("testTopic");
     string expectedValue = "data";
-    error? publish = pubsub.publish("testTopic", expectedValue);
-    if publish is error {
-        return publish;
+    check pubsub.publish("testTopic", expectedValue);
+    record{|any value;|}? 'record = check subscribe.next();
+    if 'record != () {
+        test:assertEquals(expectedValue, <string>'record.value);
     }
-    record{|any value;|}|error? 'record = subscribe.next();
-    if 'record is error? {
-        return 'record;
-    }
-    test:assertEquals(expectedValue, <string>'record.value);
 }
 
 @test:Config {
@@ -27,14 +20,11 @@ function testPubSub() returns error? {
 }
 function testGracefulCloseInPubSub() returns error? {
     pubsub:PubSub pubsub = new();
-    error? gracefulShutDown = pubsub.gracefulShutdown();
-    if gracefulShutDown is error {
-        return gracefulShutDown;
-    }
-    string expectedValue = "Data cannot be published to a closed PubSub.";
+    check pubsub.gracefulShutdown();
+    string expectedValue = "Events cannot be published to a closed PubSub.";
     error? publish = pubsub.publish("topic", "data");
+    test:assertTrue(publish is error, "Assertion failed: Data is published to a closed PubSub.");
     if publish is error {
-        test:assertEquals(expectedValue, publish.message().toString());
+        test:assertEquals(expectedValue, publish.message());
     }
-    
 }
