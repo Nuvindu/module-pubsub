@@ -65,7 +65,7 @@ public class PubSub {
     # + return - Returns `stream<any, error?>` if the user is successfully subscribed to the topic.
     # Otherwise returns a `pubsub:Error`
     public function subscribe(string topicName, int 'limit = 5, decimal timeout = 30)
-        returns stream<any, error?>|Error { //TODO: make it external, new method using 'consume()'
+        returns stream<any, error?>|Error {
         if self.isClosed {
             return error Error("Users cannot subscribe to a closed PubSub.");
         }
