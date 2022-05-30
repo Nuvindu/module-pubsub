@@ -42,6 +42,7 @@ ballerina {
     packageOrganization = packageOrg
     module = packageName
     langVersion = ballerinaLangVersion
+    testCoverageParam = "--code-coverage --coverage-format=xml --includes=org.nuvindu.pubsub.*:nuvindu.pubsub*"
 }
 
 task updateTomlFiles {

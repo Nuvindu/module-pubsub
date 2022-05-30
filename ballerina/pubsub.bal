@@ -123,14 +123,15 @@ public class PubSub {
 
     # Closes the PubSub gracefully. Waits for some grace period until all the pipes in the PubSub is gracefully closed.
     #
+    # + timeout - The grace period to wait until the pipes are gracefully closed
     # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
-    public isolated function gracefulShutdown() returns Error? {
+    public isolated function gracefulShutdown(decimal timeout = 30) returns Error? {
         self.isClosed = true;
         lock {
             foreach pipe:Pipe[] pipes in self.topics {
                 foreach pipe:Pipe pipe in pipes {
-                    error? gracefulClose = pipe.gracefulClose();
-                    if gracefulClose is error {
+                    pipe:Error? gracefulClose = pipe.gracefulClose(timeout);
+                    if gracefulClose is pipe:Error {
                         return error Error("Failed to shut down the pubsub", gracefulClose);
                     }
                 }
@@ -140,12 +141,16 @@ public class PubSub {
     }
 
     # Closes the PubSub instantly. All the pipes will be immediately closed.
-    public isolated function forceShutdown() {
+    # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
+    public isolated function forceShutdown() returns Error? {
         self.isClosed = true;
         lock {
             foreach pipe:Pipe[] pipes in self.topics {
                 foreach pipe:Pipe pipe in pipes {
-                    pipe.immediateClose();
+                    pipe:Error? immediateClose = pipe.immediateClose();
+                    if immediateClose is pipe:Error {
+                        return error Error("Failed to shut down the pubsub", immediateClose); 
+                    }
                 }
             }
             self.topics.removeAll();
