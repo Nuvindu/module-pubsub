@@ -1,11 +1,12 @@
 import nuvindu/pipe;
+import ballerina/jballerina.java;
 
 # An Events Transmission Model with Publish/Subscribe APIs.
 public class PubSub {
     private map<pipe:Pipe[]> topics;
     private boolean isClosed;
     private boolean autoCreateTopics;
-
+    private pipe:Pipe pipe;
     # Creates a new `pubsub:PubSub` instance.
     #
     # + autoCreateTopics - `Topics` are automatically created when publishing/subscribing to a non-existing topics
@@ -13,6 +14,7 @@ public class PubSub {
         self.topics = {};
         self.isClosed = false;
         self.autoCreateTopics = autoCreateTopics;
+        self.pipe = new (0);
     }
 
     # Publishes events into a `Topic` of the PubSub. That will be broadcast to all the subscribers of that topic.
@@ -53,26 +55,24 @@ public class PubSub {
         }
     }
 
-    private function produceData(pipe:Pipe pipe, any event, decimal timeout) returns pipe:Error? {
+    private isolated function produceData(pipe:Pipe pipe, any event, decimal timeout) returns pipe:Error? {
         check pipe.produce(event, timeout);
     }
 
-    # Subscribes to a `Topic` in the PubSub. Subscriber will receive the events published into that topic.
+    # Subscribes to a `Topic` in the PubSub. Subscriber will receive the events published into that topic. 
+    # Every subscriber will receive a `stream` that is attached to a separate `pipe:Pipe` instance. 
     #
     # + topicName - The name of the topic which is used to subscribe
-    # + 'limit - The maximum number of entries that holds in the Pipe at once. Default value is five
+    # + 'limit - The maximum number of entries that are held in the `pipe:Pipe` at once
     # + timeout - The maximum waiting period to receive events (Default timeout: 30 seconds)
+    # + typeParam - The `type` of data that is needed to be consumed. When not provided, the type is inferred 
+    # using the expected type from the function
     # + return - Returns `stream<any, error?>` if the user is successfully subscribed to the topic.
     # Otherwise returns a `pubsub:Error`
-    public function subscribe(string topicName, int 'limit = 5, decimal timeout = 30)
-        returns stream<any, error?>|Error {
-        if self.isClosed {
-            return error Error("Users cannot subscribe to a closed PubSub.");
-        }
-        pipe:Pipe pipe = new ('limit);
-        check self.addSubscriber(topicName, pipe);
-        return pipe.consumeStream(timeout);
-    }
+    public isolated function subscribe(string topicName, int 'limit = 5, decimal timeout = 30, typedesc<any> typeParam = <>)
+        returns stream<typeParam, error?>|Error = @java:Method {
+        'class: "org.nuvindu.pubsub.PubSub"
+    } external;
 
     private isolated function unsubscribe(string topicName, pipe:Pipe pipe) returns Error? {
         lock {
@@ -87,23 +87,6 @@ public class PubSub {
                     break;
                 }
                 i += 1;
-            }
-        }
-    }
-
-    private isolated function addSubscriber(string topicName, pipe:Pipe pipe) returns Error? {
-        lock {
-            if !self.topics.hasKey(topicName) {
-                if !self.autoCreateTopics {
-                    return error Error("topic '" + topicName + "' does not exist.");
-                }
-                check self.createTopic(topicName);
-            }
-            pipe:Pipe[]? pipes = self.topics[topicName];
-            if pipes == () {
-                self.topics[topicName] = [pipe];
-            } else {
-                pipes.push(pipe);
             }
         }
     }
@@ -149,7 +132,7 @@ public class PubSub {
                 foreach pipe:Pipe pipe in pipes {
                     pipe:Error? immediateClose = pipe.immediateClose();
                     if immediateClose is pipe:Error {
-                        return error Error("Failed to shut down the pubsub", immediateClose); 
+                        return error Error("Failed to shut down the pubsub", immediateClose);
                     }
                 }
             }

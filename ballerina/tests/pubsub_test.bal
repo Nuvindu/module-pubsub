@@ -8,15 +8,15 @@ function testPubSub() returns error? {
     string expectedValue = "hello";
     stream<any, error?> subscribe = check pubsub.subscribe("topic");
     check pubsub.publish("topic", expectedValue);
-    record{|any value;|}? msg = check subscribe.next();
-    string actualValue = <string>((<record{|any value;|}>msg).value);
+    record {|any value;|}? msg = check subscribe.next();
+    string actualValue = <string>((<record {|any value;|}>msg).value);
     test:assertEquals(expectedValue, actualValue);
 }
 
 @test:Config {
     groups: ["pubsub", "errors"]
 }
-function testPubSubWithExistingTopics() returns error? {
+function testSubscribingToNonExistingTopic() returns error? {
     PubSub pubsub = new(autoCreateTopics = false);
     string expectedValue = "topic 'events' does not exist.";
     stream<any, error?>|Error subscribe = pubsub.subscribe("events");
@@ -40,7 +40,7 @@ function testSubscribingToClosedPubSub() returns error? {
     groups: ["pubsub", "errors"]
 }
 function testClosingStreams() returns error? {
-    PubSub pubsub = new ();
+    PubSub pubsub = new();
     stream<any, error?> newStream1 = check pubsub.subscribe("topic");
     stream<any, error?> newStream2 = check pubsub.subscribe("topic");
     check newStream2.close();
@@ -51,6 +51,6 @@ function testClosingStreams() returns error? {
     test:assertEquals(expectedValue, (<error>next).message());
     record {|any value;|}? message = check newStream1.next();
     expectedValue = "data";
-    string actualValue = <string>((<record{|any value;|}>message).value);
+    string actualValue = <string>((<record {|any value;|}>message).value);
     test:assertEquals(expectedValue, actualValue);
 }

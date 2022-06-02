@@ -9,7 +9,7 @@ function testPubSub() returns error? {
     stream<any, error?> subscribe = check pubsub.subscribe("testTopic");
     string expectedValue = "data";
     check pubsub.publish("testTopic", expectedValue);
-    record{|any value;|}? 'record = check subscribe.next();
+    record {|any value;|}? 'record = check subscribe.next();
     if 'record != () {
         test:assertEquals(expectedValue, <string>'record.value);
     }

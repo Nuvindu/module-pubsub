@@ -12,9 +12,3 @@ org = "nuvindu"
 name = "pipe"
 version = "0.1.0"
 repository = "local"
-
-[[dependency]]
-org = "nuvindu"
-name = "pubsub"
-version = "0.1.0"
-repository = "local"
