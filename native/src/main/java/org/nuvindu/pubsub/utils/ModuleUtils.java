@@ -9,20 +9,14 @@ import io.ballerina.runtime.api.Module;
 public class ModuleUtils {
 
     private static Module module;
-    private static Environment currentEnvironment;
 
     private ModuleUtils() {}
 
     public static void setModule(Environment environment) {
         module = environment.getCurrentModule();
-        currentEnvironment = environment;
     }
 
     public static Module getModule() {
         return module;
-    }
-
-    public static Environment getEnvironment() {
-        return currentEnvironment;
     }
 }

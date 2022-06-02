@@ -17,7 +17,12 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
+import static org.nuvindu.pubsub.Constants.AUTO_CREATE_TOPICS;
 import static org.nuvindu.pubsub.Constants.CONSUME_STREAM_METHOD;
+import static org.nuvindu.pubsub.Constants.ORGANIZATION;
+import static org.nuvindu.pubsub.Constants.PIPE;
+import static org.nuvindu.pubsub.Constants.PIPE_CLASS_NAME;
+import static org.nuvindu.pubsub.Constants.TOPICS;
 import static org.nuvindu.pubsub.utils.Utils.createError;
 
 /**
@@ -30,13 +35,13 @@ public class PubSub {
         if ((pubsub.get(StringUtils.fromString(Constants.IS_CLOSED))).equals(true)) {
             return createError("Users cannot subscribe to a closed PubSub.");
         }
-        BObject defaultPipe = pubsub.getObjectValue(StringUtils.fromString("pipe"));
-        Module module = new Module("nuvindu", "pipe", defaultPipe.getType().getPackage().getMajorVersion());
-        BObject pipe = ValueCreator.createObjectValue(module, "Pipe", limit);
+        BObject defaultPipe = pubsub.getObjectValue(StringUtils.fromString(PIPE));
+        Module module = new Module(ORGANIZATION, PIPE, defaultPipe.getType().getPackage().getMajorVersion());
+        BObject pipe = ValueCreator.createObjectValue(module, PIPE_CLASS_NAME, limit);
         if (!addSubscriber(pubsub, topicName, pipe)) {
             return createError("topic '" + topicName + "' does not exist.");
         }
-        Object[] args = new Object[]{timeout, true, typeParam, true};
+        Object[] arguments = new Object[]{timeout, true, typeParam, true};
         Future futureResult = environment.markAsync();
         StreamType streamType = TypeCreator.createStreamType(typeParam.getDescribingType(),
                 TypeCreator.createUnionType(PredefinedTypes.TYPE_ERROR, PredefinedTypes.TYPE_NULL));
@@ -52,13 +57,13 @@ public class PubSub {
                                                     public void notifyFailure(BError bError) {
                                                         futureResult.complete(createError(bError.getMessage()));
                                                     }
-                                               }, null, streamType, args);
+                                               }, null, streamType, arguments);
         return null;
     }
 
     public static boolean addSubscriber(BObject pubsub, BString topicName, BObject pipe) {
-        BMap topics = pubsub.getMapValue(StringUtils.fromString("topics"));
-        boolean autoCreateTopics = pubsub.getBooleanValue(StringUtils.fromString("autoCreateTopics"));
+        BMap topics = pubsub.getMapValue(StringUtils.fromString(TOPICS));
+        boolean autoCreateTopics = pubsub.getBooleanValue(StringUtils.fromString(AUTO_CREATE_TOPICS));
         if (!topics.containsKey(topicName)) {
             if (!autoCreateTopics) {
                 return false;

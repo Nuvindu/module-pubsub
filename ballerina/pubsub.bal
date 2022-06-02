@@ -7,6 +7,7 @@ public class PubSub {
     private boolean isClosed;
     private boolean autoCreateTopics;
     private pipe:Pipe pipe;
+
     # Creates a new `pubsub:PubSub` instance.
     #
     # + autoCreateTopics - `Topics` are automatically created when publishing/subscribing to a non-existing topics
