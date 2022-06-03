@@ -1,5 +1,5 @@
-import nuvindu/pipe;
 import ballerina/jballerina.java;
+import nuvindu/pipe;
 
 # An Events Transmission Model with Publish/Subscribe APIs.
 public class PubSub {
