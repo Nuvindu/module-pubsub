@@ -46,6 +46,7 @@ subprojects {
 
     configurations {
         ballerinaStdLibs
+        pipeLibrary
     }
 
     dependencies {
@@ -54,6 +55,8 @@ subprojects {
         ballerinaStdLibs "io.ballerina.stdlib:log-ballerina:${project.stdlibLogVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:observe-ballerina:${observeVersion}"
         ballerinaStdLibs "io.ballerina:observe-ballerina:${observeInternalVersion}"
+
+        pipeLibrary "org.nuvindu.pipe:pipe-ballerina:${pipeVersion}"
     }
 }
 
