@@ -30,7 +30,7 @@ public class PubSub {
         }
         if !self.topics.hasKey(topicName) {
             if !self.autoCreateTopics {
-                return error Error(topicName + " : topic does not exist.");
+                return error Error("Topic '" + topicName + "' does not exist.");
             }
             check self.createTopic(topicName);
         }
@@ -79,7 +79,7 @@ public class PubSub {
         lock {
             pipe:Pipe[]? pipes = self.topics[topicName];
             if pipes == () {
-                return error Error("topic '" + topicName + "' does not exist.");
+                return error Error("Topic '" + topicName + "' does not exist.");
             }
             int i = 0;
             while i < pipes.length() {
