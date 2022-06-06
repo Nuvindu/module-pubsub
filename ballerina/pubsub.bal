@@ -125,6 +125,7 @@ public class PubSub {
     }
 
     # Closes the PubSub instantly. All the pipes will be immediately closed.
+    #
     # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
     public isolated function forceShutdown() returns Error? {
         self.isClosed = true;
