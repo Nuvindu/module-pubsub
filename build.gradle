@@ -34,6 +34,14 @@ allprojects {
                 password System.getenv("packagePAT")
             }
         }
+
+        maven {
+            url = 'https://maven.pkg.github.com/Nuvindu/*'
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
     }
 
     ext {
@@ -46,7 +54,6 @@ subprojects {
 
     configurations {
         ballerinaStdLibs
-        pipeLibrary
     }
 
     dependencies {
@@ -55,8 +62,7 @@ subprojects {
         ballerinaStdLibs "io.ballerina.stdlib:log-ballerina:${project.stdlibLogVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:observe-ballerina:${observeVersion}"
         ballerinaStdLibs "io.ballerina:observe-ballerina:${observeInternalVersion}"
-
-        pipeLibrary "org.nuvindu.pipe:pipe-ballerina:${pipeVersion}"
+        ballerinaStdLibs "org.nuvindu.pipe:pipe-ballerina:${pipeVersion}"
     }
 }
 
