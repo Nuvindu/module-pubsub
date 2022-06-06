@@ -6,10 +6,10 @@ import ballerina/test;
 function testPubSub() returns error? {
     PubSub pubsub = new();
     string expectedValue = "hello";
-    stream<any, error?> subscribe = check pubsub.subscribe("topic");
+    stream<string, error?> subscribe = check pubsub.subscribe("topic");
     check pubsub.publish("topic", expectedValue);
-    record {|any value;|}? msg = check subscribe.next();
-    string actualValue = <string>((<record {|any value;|}>msg).value);
+    record {|string value;|}? msg = check subscribe.next();
+    string actualValue = <string>((<record {|string value;|}>msg).value);
     test:assertEquals(expectedValue, actualValue);
 }
 
@@ -19,15 +19,15 @@ function testPubSub() returns error? {
 function testGracefulShutdown() returns error? {
     PubSub pubsub = new();
     string expectedValue = "No any event is available in the closed pipe.";
-    stream<any, error?> subscribe = check pubsub.subscribe("topic");
+    stream<string, error?> subscribe = check pubsub.subscribe("topic");
     check pubsub.gracefulShutdown();
-    record {| any value; |}|error? msg = subscribe.next();
+    record {|string value;|}|error? msg = subscribe.next();
     test:assertTrue(msg is error);
     string actualValue = (<error>msg).message();
     test:assertEquals(expectedValue, actualValue);
 
     expectedValue = "Users cannot subscribe to a closed PubSub.";
-    stream<any, error?>|Error new_subscriber = pubsub.subscribe("topic");
+    stream<string, error?>|Error new_subscriber = pubsub.subscribe("topic");
     test:assertTrue(new_subscriber is Error);
     test:assertEquals(expectedValue, (<Error>new_subscriber).message());
 
@@ -43,15 +43,15 @@ function testGracefulShutdown() returns error? {
 function testForceShutdown() returns error? {
     PubSub pubsub = new();
     string expectedValue = "No any event is available in the closed pipe.";
-    stream<any, error?> subscribe = check pubsub.subscribe("topic");
+    stream<string, error?> subscribe = check pubsub.subscribe("topic");
     check pubsub.forceShutdown();
-    record {| any value; |}|error? msg = subscribe.next();
+    record {|string value;|}|error? msg = subscribe.next();
     test:assertTrue(msg is error);
     string actualValue = (<error>msg).message();
     test:assertEquals(expectedValue, actualValue);
 
     expectedValue = "Users cannot subscribe to a closed PubSub.";
-    stream<any, error?>|Error new_subscriber = pubsub.subscribe("topic");
+    stream<string, error?>|Error new_subscriber = pubsub.subscribe("topic");
     test:assertTrue(new_subscriber is Error);
     test:assertEquals(expectedValue, (<Error>new_subscriber).message());
 
@@ -69,11 +69,11 @@ function testCreatingTopics() returns error? {
     string topicName = "topic";
     Error? topic = pubsub.createTopic(topicName);
     test:assertTrue(topic !is Error);
-    stream<any, error?> subscribe = check pubsub.subscribe(topicName);
+    stream<string, error?> subscribe = check pubsub.subscribe(topicName);
     string expectedValue = "data";
     check pubsub.publish(topicName, expectedValue);
-    record {|any value;|}? msg = check subscribe.next();
-    string actualValue = <string>((<record {|any value;|}>msg).value);
+    record {|string value;|}? msg = check subscribe.next();
+    string actualValue = <string>((<record {|string value;|}>msg).value);
     test:assertEquals(expectedValue, actualValue);
 }
 

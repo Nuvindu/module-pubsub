@@ -70,7 +70,8 @@ public class PubSub {
     # using the expected type from the function
     # + return - Returns `stream<any, error?>` if the user is successfully subscribed to the topic.
     # Otherwise returns a `pubsub:Error`
-    public isolated function subscribe(string topicName, int 'limit = 5, decimal timeout = 30, typedesc<any> typeParam = <>)
+    public isolated function subscribe(string topicName, int 'limit = 5, decimal timeout = 30,
+                                        typedesc<any> typeParam = <>)
         returns stream<typeParam, error?>|Error = @java:Method {
         'class: "org.nuvindu.pubsub.PubSub"
     } external;

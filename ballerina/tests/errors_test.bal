@@ -11,7 +11,6 @@ function testPublishingToNonExistingTopic() returns error? {
     test:assertEquals(expectedValue, (<Error>publish).message());
 }
 
-
 @test:Config {
     groups: ["pubsub", "errors"]
 }
