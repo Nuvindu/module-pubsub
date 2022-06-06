@@ -60,3 +60,33 @@ function testForceShutdown() returns error? {
     test:assertTrue(publish is Error);
     test:assertEquals(expectedValue, (<Error>publish).message());
 }
+
+@test:Config {
+    groups: ["pubsub"]
+}
+function testCreatingTopics() returns error? {
+    PubSub pubsub = new(false);
+    string topicName = "topic";
+    Error? topic = pubsub.createTopic(topicName);
+    test:assertTrue(topic !is Error);
+    stream<any, error?> subscribe = check pubsub.subscribe(topicName);
+    string expectedValue = "data";
+    check pubsub.publish(topicName, expectedValue);
+    record {|any value;|}? msg = check subscribe.next();
+    string actualValue = <string>((<record {|any value;|}>msg).value);
+    test:assertEquals(expectedValue, actualValue);
+}
+
+@test:Config {
+    groups: ["pubsub"]
+}
+function testAutoCreationTopicInPublishing() returns error? {
+    PubSub pubsub = new(autoCreateTopics = true);
+    string topicName = "topic";
+    Error? publish = pubsub.publish(topicName, "data");
+    test:assertTrue(publish !is Error);
+    Error? topic = pubsub.createTopic(topicName);
+    test:assertTrue(topic is Error);
+    string expectedValue = "Topic name '" + topicName + "' already exists.";
+    test:assertEquals(expectedValue, (<Error>topic).message());
+}

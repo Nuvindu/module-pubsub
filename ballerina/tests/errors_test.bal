@@ -53,3 +53,16 @@ function testClosingStreams() returns error? {
     string actualValue = <string>((<record {|any value;|}>message).value);
     test:assertEquals(expectedValue, actualValue);
 }
+
+@test:Config {
+    groups: ["pubsub", "errors"]
+}
+function testCreatingExistingTopics() returns error? {
+    PubSub pubsub = new();
+    string topicName = "topic";
+    check pubsub.createTopic(topicName);
+    Error? topic = pubsub.createTopic(topicName);
+    test:assertTrue(topic is Error);
+    string expectedValue = "Topic name '" + topicName + "' already exists.";
+    test:assertEquals(expectedValue, (<Error>topic).message());
+}

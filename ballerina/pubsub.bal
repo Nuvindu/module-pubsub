@@ -77,10 +77,7 @@ public class PubSub {
 
     private isolated function unsubscribe(string topicName, pipe:Pipe pipe) returns Error? {
         lock {
-            pipe:Pipe[]? pipes = self.topics[topicName];
-            if pipes == () {
-                return error Error("Topic '" + topicName + "' does not exist.");
-            }
+            pipe:Pipe[] pipes = <pipe:Pipe[]>self.topics[topicName];
             int i = 0;
             while i < pipes.length() {
                 if pipe === pipes[i] {
