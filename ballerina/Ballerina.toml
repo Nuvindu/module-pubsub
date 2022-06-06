@@ -11,8 +11,5 @@ distribution = "2201.0.1"
 [[platform.java11.dependency]]
 path = "../native/build/libs/pubsub-native-0.1.0-SNAPSHOT.jar"
 
-[[dependency]]
-org = "nuvindu"
-name = "pipe"
+[dependencies."nuvindu/pipe"]
 version = "0.1.1"
-repository = "https://github.com/Nuvindu/module-pipe"
