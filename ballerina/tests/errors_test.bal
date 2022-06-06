@@ -66,3 +66,19 @@ function testCreatingExistingTopics() returns error? {
     string expectedValue = "Topic name '" + topicName + "' already exists.";
     test:assertEquals(expectedValue, (<Error>topic).message());
 }
+
+@test:Config {
+    groups: ["pubsub", "errors"]
+}
+function testPublishingNullValuesToTopics() returns error? {
+    PubSub pubsub = new();
+    stream<any, error?>|Error subscriber = pubsub.subscribe("topic");
+    test:assertTrue(subscriber !is Error);
+    Error? publish = pubsub.publish("topic", ());
+    test:assertTrue(publish is Error);
+    string expectedValue = "Failed to publish events.";
+    test:assertEquals(expectedValue, (<Error>publish).message());
+    string expectedCause = "Nil values cannot be produced to a pipe.";
+    string actualCause = (<error>(<Error>publish).cause()).message();
+    test:assertEquals(expectedCause, actualCause);
+}
