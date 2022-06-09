@@ -50,7 +50,11 @@ public class PubSub {
             }
             check self.createTopic(topicName);
         }
-        pipe:Pipe[] pipes = <pipe:Pipe[]>self.topics[topicName];
+        pipe:Pipe[] pipes = self.topics.get(topicName);
+        check self.produceAll(pipes, event, timeout, topicName);
+    }
+
+    private function produceAll(pipe:Pipe[] pipes, any event, decimal timeout, string topicName) returns Error? {
         pipe:Pipe[] removedPipes = [];
         future<pipe:Error?>[] waitingQueue = [];
         foreach pipe:Pipe pipe in pipes {
@@ -61,19 +65,27 @@ public class PubSub {
                 removedPipes.push(pipe);
             }
         }
+        check self.asyncProduce(waitingQueue);
+        check self.unsubscribeClosedPipes(removedPipes, topicName);
+    }
+
+    private isolated function produceData(pipe:Pipe pipe, any event, decimal timeout) returns pipe:Error? {
+        check pipe.produce(event, timeout);
+    }
+
+    private isolated function asyncProduce(future<pipe:Error?>[] waitingQueue) returns Error? {
         foreach future<pipe:Error?> asyncValue in waitingQueue {
             pipe:Error? produce = wait asyncValue;
             if produce is pipe:Error {
                 return error Error("Failed to publish events.", produce);
             }
         }
+    }
+
+    private isolated function unsubscribeClosedPipes(pipe:Pipe[] removedPipes, string topicName) returns Error? {
         foreach pipe:Pipe pipe in removedPipes {
             check self.unsubscribe(topicName, pipe);
         }
-    }
-
-    private isolated function produceData(pipe:Pipe pipe, any event, decimal timeout) returns pipe:Error? {
-        check pipe.produce(event, timeout);
     }
 
     # Subscribes to a `Topic` in the PubSub. Subscriber will receive the events published into that topic. 
@@ -94,7 +106,7 @@ public class PubSub {
 
     private isolated function unsubscribe(string topicName, pipe:Pipe pipe) returns Error? {
         lock {
-            pipe:Pipe[] pipes = <pipe:Pipe[]>self.topics[topicName];
+            pipe:Pipe[] pipes = self.topics.get(topicName);
             int i = 0;
             while i < pipes.length() {
                 if pipe === pipes[i] {
