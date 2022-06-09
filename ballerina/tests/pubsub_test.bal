@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.runtime;
 import ballerina/test;
 
 @test:Config {
@@ -105,4 +106,34 @@ function testAutoCreationTopicInPublishing() returns error? {
     test:assertTrue(topic is Error);
     string expectedValue = string `Topic "${topicName}" already exists.`;
     test:assertEquals(expectedValue, (<Error>topic).message());
+}
+
+@test:Config {
+    groups: ["pubsub"]
+}
+function testWaitingInGracefulShutdown() returns error? {
+    PubSub pubsub = new();
+    string topicName = "topic";
+    stream<string, error?> subscriber = check pubsub.subscribe(topicName);
+    string expectedValue = "data";
+    Error? publish = pubsub.publish(topicName, expectedValue);
+    test:assertTrue(publish !is Error);
+
+    worker A {
+        Error? close = pubsub.gracefulShutdown();
+        test:assertTrue(close !is Error);
+    }
+
+    @strand {
+        thread: "any"
+    }
+    worker B {
+        runtime:sleep(5);
+        record {|string value;|}|error? next = subscriber.next();
+        test:assertTrue(next !is error?);
+        if next is record {|string value;|} {
+            string actualValue = next.value;
+            test:assertEquals(expectedValue, actualValue);
+        }
+    }
 }

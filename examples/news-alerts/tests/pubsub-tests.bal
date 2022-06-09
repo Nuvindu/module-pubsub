@@ -18,7 +18,7 @@ import nuvindu/pubsub;
 import ballerina/test;
 
 @test:Config {
-    groups: ["pubsub"]
+    groups: ["pubsub", "examples", "news_alert"]
 }
 function testPubSub() returns error? {
     pubsub:PubSub pubsub = new();
@@ -32,7 +32,7 @@ function testPubSub() returns error? {
 }
 
 @test:Config {
-    groups: ["pubsub"]
+    groups: ["pubsub", "examples", "news_alert"]
 }
 function testGracefulCloseInPubSub() returns error? {
     pubsub:PubSub pubsub = new();

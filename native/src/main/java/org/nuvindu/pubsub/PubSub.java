@@ -18,13 +18,11 @@ package org.nuvindu.pubsub;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.StreamType;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -33,12 +31,12 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
-import static org.nuvindu.pubsub.Constants.AUTO_CREATE_TOPICS;
-import static org.nuvindu.pubsub.Constants.CONSUME_STREAM_METHOD;
-import static org.nuvindu.pubsub.Constants.ORGANIZATION;
-import static org.nuvindu.pubsub.Constants.PIPE;
-import static org.nuvindu.pubsub.Constants.PIPE_CLASS_NAME;
-import static org.nuvindu.pubsub.Constants.TOPICS;
+import static org.nuvindu.pubsub.utils.Utils.AUTO_CREATE_TOPICS;
+import static org.nuvindu.pubsub.utils.Utils.CONSUME_STREAM_METHOD;
+import static org.nuvindu.pubsub.utils.Utils.IS_CLOSED;
+import static org.nuvindu.pubsub.utils.Utils.PIPE_CLASS_NAME;
+import static org.nuvindu.pubsub.utils.Utils.PIPE_PACKAGE_NAME;
+import static org.nuvindu.pubsub.utils.Utils.TOPICS;
 import static org.nuvindu.pubsub.utils.Utils.createError;
 
 /**
@@ -48,14 +46,15 @@ public class PubSub {
 
     public static Object subscribe(Environment environment, BObject pubsub, BString topicName, int limit,
                                    BDecimal timeout, BTypedesc typeParam) {
-        if ((pubsub.get(StringUtils.fromString(Constants.IS_CLOSED))).equals(true)) {
+        if ((pubsub.get(IS_CLOSED)).equals(true)) {
             return createError("Users cannot subscribe to a closed PubSub.");
         }
-        BObject defaultPipe = pubsub.getObjectValue(StringUtils.fromString(PIPE));
-        Module module = new Module(ORGANIZATION, PIPE, defaultPipe.getType().getPackage().getMajorVersion());
-        BObject pipe = ValueCreator.createObjectValue(module, PIPE_CLASS_NAME, limit);
-        if (!addSubscriber(pubsub, topicName, pipe)) {
-            return createError("Topic \"" + topicName + "\" does not exist.");
+        BObject defaultPipe = pubsub.getObjectValue(PIPE_PACKAGE_NAME);
+        BObject pipe = ValueCreator.createObjectValue(defaultPipe.getType().getPackage(), PIPE_CLASS_NAME, limit);
+        try {
+            addSubscriber(pubsub, topicName, pipe);
+        } catch (BError bError) {
+            return bError;
         }
         Object[] arguments = new Object[]{timeout, true, typeParam, true};
         Future futureResult = environment.markAsync();
@@ -77,12 +76,12 @@ public class PubSub {
         return null;
     }
 
-    public static boolean addSubscriber(BObject pubsub, BString topicName, BObject pipe) {
-        BMap topics = pubsub.getMapValue(StringUtils.fromString(TOPICS));
-        boolean autoCreateTopics = pubsub.getBooleanValue(StringUtils.fromString(AUTO_CREATE_TOPICS));
+    public static void addSubscriber(BObject pubsub, BString topicName, BObject pipe) throws BError {
+        BMap topics = pubsub.getMapValue(TOPICS);
+        boolean autoCreateTopics = pubsub.getBooleanValue(AUTO_CREATE_TOPICS);
         if (!topics.containsKey(topicName)) {
             if (!autoCreateTopics) {
-                return false;
+                throw createError("Topic \"" + topicName + "\" does not exist.");
             }
             BArray pipes = ValueCreator.createArrayValue(TypeCreator.createArrayType(pipe.getType()));
             pipes.append(pipe);
@@ -92,6 +91,5 @@ public class PubSub {
             pipes.append(pipe);
             topics.put(topicName, pipes);
         }
-        return true;
     }
 }

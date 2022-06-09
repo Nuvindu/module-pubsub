@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/lang.runtime;
 import nuvindu/pipe;
 
 # An Events Transmission Model with Publish/Subscribe APIs.
@@ -34,7 +35,7 @@ public class PubSub {
         self.pipe = new (0);
     }
 
-    # Publishes events into a `Topic` of the PubSub. That will be broadcast to all the subscribers of that topic.
+    # Publishes events into a topic of the PubSub. That will be broadcast to all the subscribers of that topic.
     #
     # + topicName - The name of the topic which is used to publish events
     # + event - Event that needs to be published to PubSub. Can be `any` type
@@ -88,7 +89,7 @@ public class PubSub {
         }
     }
 
-    # Subscribes to a `Topic` in the PubSub. Subscriber will receive the events published into that topic. 
+    # Subscribes to a topic in the PubSub. The subscriber will receive the events published into that topic.
     # Every subscriber will receive a `stream` that is attached to a separate `pipe:Pipe` instance. 
     #
     # + topicName - The name of the topic which is used to subscribe
@@ -110,7 +111,7 @@ public class PubSub {
             int i = 0;
             while i < pipes.length() {
                 if pipe === pipes[i] {
-                    pipe:Pipe _ = pipes.remove(i);
+                    _ = pipes.remove(i);
                     break;
                 }
                 i += 1;
@@ -118,7 +119,7 @@ public class PubSub {
         }
     }
 
-    # Creates a new `Topic` in the PubSub.
+    # Creates a new topic in the PubSub.
     #
     # + topicName - The name of the topic which is used to publish/subscribe
     # + return - Returns `()` if the topic is successfully added to the PubSub. Otherwise returns a `pubsub:Error`
@@ -131,21 +132,15 @@ public class PubSub {
         }
     }
 
-    # Closes the PubSub gracefully. Waits for some grace period until all the pipes in the PubSub is gracefully closed.
+    # Closes the PubSub gracefully. Waits for the provided grace period before closing all the pipes in PubSub.
     #
     # + timeout - The grace period to wait until the pipes are gracefully closed
     # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
     public isolated function gracefulShutdown(decimal timeout = 30) returns Error? {
         self.isClosed = true;
         lock {
-            foreach pipe:Pipe[] pipes in self.topics {
-                foreach pipe:Pipe pipe in pipes {
-                    pipe:Error? gracefulClose = pipe.gracefulClose(timeout);
-                    if gracefulClose is pipe:Error {
-                        return error Error("Failed to shut down the pubsub", gracefulClose);
-                    }
-                }
-            }
+            runtime:sleep(timeout);
+            check self.forceShutdown();
             self.topics.removeAll();
         }
     }

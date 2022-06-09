@@ -19,6 +19,7 @@ package org.nuvindu.pubsub.utils;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 
 import static org.nuvindu.pubsub.utils.ModuleUtils.getModule;
 
@@ -31,7 +32,13 @@ public class Utils {
     }
 
     // Internal type names
+    public static final BString AUTO_CREATE_TOPICS = StringUtils.fromString("autoCreateTopics");
+    public static final BString IS_CLOSED = StringUtils.fromString("isClosed");
+    public static final BString PIPE_PACKAGE_NAME = StringUtils.fromString("pipe");
+    public static final BString TOPICS = StringUtils.fromString("topics");
+    public static final String CONSUME_STREAM_METHOD = "consumeStream";
     public static final String ERROR_TYPE = "Error";
+    public static final String PIPE_CLASS_NAME = "Pipe";
 
     public static BError createError(String message) {
         return ErrorCreator.createError(getModule(), ERROR_TYPE, StringUtils.fromString(message), null, null);
