@@ -21,8 +21,9 @@ import ballerina/test;
 }
 function testPublishingToNonExistingTopic() returns error? {
     PubSub pubsub = new(autoCreateTopics = false);
-    string expectedValue = "Topic 'events' does not exist.";
-    Error? publish = pubsub.publish("events", "hello");
+    string topicName = "events";
+    string expectedValue = string `Topic "${topicName}" does not exist.`;
+    Error? publish = pubsub.publish(topicName, "hello");
     test:assertTrue(publish is Error);
     test:assertEquals(expectedValue, (<Error>publish).message());
 }
@@ -32,8 +33,9 @@ function testPublishingToNonExistingTopic() returns error? {
 }
 function testSubscribingToNonExistingTopic() returns error? {
     PubSub pubsub = new(autoCreateTopics = false);
-    string expectedValue = "Topic 'events' does not exist.";
-    stream<any, error?>|Error subscribe = pubsub.subscribe("events");
+    string topicName = "events";
+    string expectedValue = string `Topic "${topicName}" does not exist.`;
+    stream<any, error?>|Error subscribe = pubsub.subscribe(topicName);
     test:assertTrue(subscribe is Error);
     test:assertEquals(expectedValue, (<Error>subscribe).message());
 }
@@ -78,7 +80,7 @@ function testCreatingExistingTopics() returns error? {
     check pubsub.createTopic(topicName);
     Error? topic = pubsub.createTopic(topicName);
     test:assertTrue(topic is Error);
-    string expectedValue = "Topic name '" + topicName + "' already exists.";
+    string expectedValue = string `Topic "${topicName}" already exists.`;
     test:assertEquals(expectedValue, (<Error>topic).message());
 }
 

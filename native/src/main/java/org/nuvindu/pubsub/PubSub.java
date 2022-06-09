@@ -55,7 +55,7 @@ public class PubSub {
         Module module = new Module(ORGANIZATION, PIPE, defaultPipe.getType().getPackage().getMajorVersion());
         BObject pipe = ValueCreator.createObjectValue(module, PIPE_CLASS_NAME, limit);
         if (!addSubscriber(pubsub, topicName, pipe)) {
-            return createError("Topic '" + topicName + "' does not exist.");
+            return createError("Topic \"" + topicName + "\" does not exist.");
         }
         Object[] arguments = new Object[]{timeout, true, typeParam, true};
         Future futureResult = environment.markAsync();

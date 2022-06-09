@@ -26,7 +26,7 @@ public class PubSub {
 
     # Creates a new `pubsub:PubSub` instance.
     #
-    # + autoCreateTopics - `Topics` are automatically created when publishing/subscribing to a non-existing topics
+    # + autoCreateTopics - To enable/disable auto creation of the non-existing topics when publishing/subscribing
     public isolated function init(boolean autoCreateTopics = true) {
         self.topics = {};
         self.isClosed = false;
@@ -36,8 +36,8 @@ public class PubSub {
 
     # Publishes events into a `Topic` of the PubSub. That will be broadcast to all the subscribers of that topic.
     #
-    # + event - Event that needs to be published to PubSub. Can be `any` type
     # + topicName - The name of the topic which is used to publish events
+    # + event - Event that needs to be published to PubSub. Can be `any` type
     # + timeout - The maximum waiting period to hold events (Default timeout: 30 seconds)
     # + return - Returns `()` if event is successfully published. Otherwise, returns a `pubsub:Error`
     public function publish(string topicName, any event, decimal timeout = 30) returns Error? {
@@ -46,7 +46,7 @@ public class PubSub {
         }
         if !self.topics.hasKey(topicName) {
             if !self.autoCreateTopics {
-                return error Error("Topic '" + topicName + "' does not exist.");
+                return error Error(string `Topic "${topicName}" does not exist.`);
             }
             check self.createTopic(topicName);
         }
@@ -87,7 +87,7 @@ public class PubSub {
     # + return - Returns `stream<any, error?>` if the user is successfully subscribed to the topic.
     # Otherwise returns a `pubsub:Error`
     public isolated function subscribe(string topicName, int 'limit = 5, decimal timeout = 30,
-                                        typedesc<any> typeParam = <>)
+                                       typedesc<any> typeParam = <>)
         returns stream<typeParam, error?>|Error = @java:Method {
         'class: "org.nuvindu.pubsub.PubSub"
     } external;
@@ -108,14 +108,14 @@ public class PubSub {
 
     # Creates a new `Topic` in the PubSub.
     #
-    # + topic - The name of the topic which is used to publish/subscribe
+    # + topicName - The name of the topic which is used to publish/subscribe
     # + return - Returns `()` if the topic is successfully added to the PubSub. Otherwise returns a `pubsub:Error`
-    public isolated function createTopic(string topic) returns Error? {
+    public isolated function createTopic(string topicName) returns Error? {
         lock {
-            if self.topics.hasKey(topic) {
-                return error Error("Topic name '" + topic + "' already exists.");
+            if self.topics.hasKey(topicName) {
+                return error Error(string `Topic "${topicName}" already exists.`);
             }
-            self.topics[topic] = [];
+            self.topics[topicName] = [];
         }
     }
 

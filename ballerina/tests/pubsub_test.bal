@@ -103,6 +103,6 @@ function testAutoCreationTopicInPublishing() returns error? {
     test:assertTrue(publish !is Error);
     Error? topic = pubsub.createTopic(topicName);
     test:assertTrue(topic is Error);
-    string expectedValue = "Topic name '" + topicName + "' already exists.";
+    string expectedValue = string `Topic "${topicName}" already exists.`;
     test:assertEquals(expectedValue, (<Error>topic).message());
 }
