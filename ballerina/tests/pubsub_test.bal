@@ -22,9 +22,10 @@ import ballerina/test;
 }
 function testPubSub() returns error? {
     PubSub pubsub = new();
+    string topicName = "topic";
     string expectedValue = "hello";
-    stream<string, error?> subscribe = check pubsub.subscribe("topic");
-    check pubsub.publish("topic", expectedValue);
+    stream<string, error?> subscribe = check pubsub.subscribe(topicName);
+    check pubsub.publish(topicName, expectedValue);
     record {|string value;|}? msg = check subscribe.next();
     string actualValue = <string>((<record {|string value;|}>msg).value);
     test:assertEquals(expectedValue, actualValue);

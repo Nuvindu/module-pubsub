@@ -17,11 +17,11 @@
 import ballerina/test;
 
 @test:Config {
-    groups: ["pubsub", "errors"]
+    groups: ["errors"]
 }
 function testPublishingToNonExistingTopic() returns error? {
     PubSub pubsub = new(autoCreateTopics = false);
-    string topicName = "events";
+    string topicName = "topic";
     string expectedValue = string `Topic "${topicName}" does not exist.`;
     Error? publish = pubsub.publish(topicName, "hello");
     test:assertTrue(publish is Error);
@@ -29,11 +29,11 @@ function testPublishingToNonExistingTopic() returns error? {
 }
 
 @test:Config {
-    groups: ["pubsub", "errors"]
+    groups: ["errors"]
 }
 function testSubscribingToNonExistingTopic() returns error? {
     PubSub pubsub = new(autoCreateTopics = false);
-    string topicName = "events";
+    string topicName = "topic";
     string expectedValue = string `Topic "${topicName}" does not exist.`;
     stream<any, error?>|Error subscribe = pubsub.subscribe(topicName);
     test:assertTrue(subscribe is Error);
@@ -41,7 +41,7 @@ function testSubscribingToNonExistingTopic() returns error? {
 }
 
 @test:Config {
-    groups: ["pubsub", "errors"]
+    groups: ["errors"]
 }
 function testSubscribingToClosedPubSub() returns error? {
     PubSub pubsub = new(false);
@@ -53,7 +53,7 @@ function testSubscribingToClosedPubSub() returns error? {
 }
 
 @test:Config {
-    groups: ["pubsub", "errors"]
+    groups: ["errors"]
 }
 function testClosingStreams() returns error? {
     PubSub pubsub = new();
@@ -72,7 +72,7 @@ function testClosingStreams() returns error? {
 }
 
 @test:Config {
-    groups: ["pubsub", "errors"]
+    groups: ["errors"]
 }
 function testCreatingExistingTopics() returns error? {
     PubSub pubsub = new();
@@ -85,7 +85,20 @@ function testCreatingExistingTopics() returns error? {
 }
 
 @test:Config {
-    groups: ["pubsub", "errors"]
+    groups: ["errors"]
+}
+function testCreatingExistingTopicsToAutoCreateTopicsEnabledPubSub() returns error? {
+    PubSub pubsub = new();
+    string topicName = "topic";
+    check pubsub.publish(topicName, "event");
+    Error? topic = pubsub.createTopic(topicName);
+    test:assertTrue(topic is Error);
+    string expectedValue = string `Topic "${topicName}" already exists.`;
+    test:assertEquals(expectedValue, (<Error>topic).message());
+}
+
+@test:Config {
+    groups: ["errors"]
 }
 function testPublishingNullValuesToTopics() returns error? {
     PubSub pubsub = new();

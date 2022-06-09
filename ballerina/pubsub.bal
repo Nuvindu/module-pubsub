@@ -32,7 +32,7 @@ public class PubSub {
         self.topics = {};
         self.isClosed = false;
         self.autoCreateTopics = autoCreateTopics;
-        self.pipe = new (0);
+        self.pipe = new(0);
     }
 
     # Publishes events into a topic of the PubSub. That will be broadcast to all the subscribers of that topic.
