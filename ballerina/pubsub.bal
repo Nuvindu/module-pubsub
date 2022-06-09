@@ -97,8 +97,8 @@ public class PubSub {
     # + timeout - The maximum waiting period to receive events (Default timeout: 30 seconds)
     # + typeParam - The `type` of data that is needed to be consumed. When not provided, the type is inferred 
     # using the expected type from the function
-    # + return - Returns `stream<any, error?>` if the user is successfully subscribed to the topic.
-    # Otherwise returns a `pubsub:Error`
+    # + return - Returns `stream` if the user is successfully subscribed to the topic. Otherwise returns a 
+    # `pubsub:Error`
     public isolated function subscribe(string topicName, int 'limit = 5, decimal timeout = 30,
                                        typedesc<any> typeParam = <>)
         returns stream<typeParam, error?>|Error = @java:Method {
