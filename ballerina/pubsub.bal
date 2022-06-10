@@ -90,10 +90,10 @@ public class PubSub {
     }
 
     # Subscribes to a topic in the PubSub. The subscriber will receive the events published into that topic.
-    # Every subscriber will receive a `stream` that is attached to a separate `pipe:Pipe` instance. 
+    # Every subscriber will receive a `stream` that is attached to a separate pipe instance. 
     #
     # + topicName - The name of the topic which is used to subscribe
-    # + 'limit - The maximum number of entries that are held in the `pipe:Pipe` at once
+    # + 'limit - The maximum number of entries that are held in the pipe at once
     # + timeout - The maximum waiting period to receive events (Default timeout: 30 seconds)
     # + typeParam - The `type` of data that is needed to be consumed. When not provided, the type is inferred 
     # using the expected type from the function
