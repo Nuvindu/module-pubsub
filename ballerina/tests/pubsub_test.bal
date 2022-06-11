@@ -27,7 +27,7 @@ function testPubSub() returns error? {
     stream<string, error?> subscribe = check pubsub.subscribe(topicName);
     check pubsub.publish(topicName, expectedValue);
     record {|string value;|}? msg = check subscribe.next();
-    string actualValue = <string>((<record {|string value;|}>msg).value);
+    string actualValue = (<record {|string value;|}>msg).value;
     test:assertEquals(expectedValue, actualValue);
 }
 
@@ -91,7 +91,7 @@ function testCreatingTopics() returns error? {
     string expectedValue = "data";
     check pubsub.publish(topicName, expectedValue);
     record {|string value;|}? msg = check subscribe.next();
-    string actualValue = <string>((<record {|string value;|}>msg).value);
+    string actualValue = (<record {|string value;|}>msg).value;
     test:assertEquals(expectedValue, actualValue);
 }
 
