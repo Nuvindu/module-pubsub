@@ -31,11 +31,11 @@ A `pubsub:PubSub` instance can be created as follows. It has a parameter to enab
 
 ### APIs associated with PubSub
 
-- <b> publish </b>: Publishes data into a topic. Data will be broadcast to all the subscribers of that topic. Returns `()`, if the event is successfully published. Otherwise, returns a `pubsub:Error`.
-- <b> subscribe </b>: Subscribes to a topic in the PubSub. Subscriber will receive the data published into that topic. Returns `stream` if the user is successfully subscribed to the topic. The type of the stream is inferred from the user-expected type. Otherwise returns a `pubsub:Error`.
-- <b> createTopic </b>: Creates a new topic in the PubSub. Returns `()` if the topic is successfully added to the PubSub. Otherwise returns a `pubsub:Error`.
-- <b> forceShutdown </b>: Closes the PubSub instantly. All the pipes will be immediately closed. Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`.
-- <b> gracefulShutdown </b>: loses the PubSub gracefully. Waits for the provided grace period before closing all the pipes in PubSub. Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`.
+- <b> publish </b>: Publishes data into a topic. Data will be broadcast to all the subscribers of that topic.
+- <b> subscribe </b>: Subscribes to a topic in the PubSub. Subscriber will receive the data published into that topic.
+- <b> createTopic </b>: Creates a new topic in the PubSub.
+- <b> forceShutdown </b>: Closes the PubSub instantly. All the pipes will be immediately closed.
+- <b> gracefulShutdown </b>: Closes the PubSub gracefully. Waits for the provided grace period before closing all the pipes in PubSub.
 
 In the proposed model, `Pipes` are used to transfer data from publishers to subscribers. PubSub creates a new `Pipe` instance for each subscriber in a topic. In the `subscribe` method it returns a stream so that clients can receive data through that stream whenever an event occurs. The event is triggered when data is published on a topic. Then, The `publish` method, produces the given data to all the pipes of that topic. Since the pipes have producer-consumer architecture, data can be produced and consumed in parallel processes. Topics can either sets to automatically create when publishing/subscribing or users can use the `createTopic` method to create them. </br>
 
