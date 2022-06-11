@@ -45,6 +45,9 @@ public class PubSub {
         if self.isClosed {
             return error Error("Events cannot be published to a closed PubSub.");
         }
+        if event == () {
+            return error Error("Nil values cannot be published to a PubSub.");
+        }
         if !self.topics.hasKey(topicName) {
             if !self.autoCreateTopics {
                 return error Error(string `Topic "${topicName}" does not exist.`);
@@ -60,26 +63,30 @@ public class PubSub {
         future<pipe:Error?>[] waitingQueue = [];
         foreach pipe:Pipe pipe in pipes {
             if !pipe.isClosed() {
-                future<pipe:Error?> asyncValue = start self.produceData(pipe, event, timeout);
+                future<pipe:Error?> asyncValue = start self.produceEvents(pipe, event, timeout);
                 waitingQueue.push(asyncValue);
             } else {
                 removedPipes.push(pipe);
             }
         }
-        check self.asyncProduce(waitingQueue);
+        check self.waitForProduceCompletion(waitingQueue);
         check self.unsubscribeClosedPipes(removedPipes, topicName);
     }
 
-    private isolated function produceData(pipe:Pipe pipe, any event, decimal timeout) returns pipe:Error? {
+    private isolated function produceEvents(pipe:Pipe pipe, any event, decimal timeout) returns pipe:Error? {
         check pipe.produce(event, timeout);
     }
 
-    private isolated function asyncProduce(future<pipe:Error?>[] waitingQueue) returns Error? {
+    private isolated function waitForProduceCompletion(future<pipe:Error?>[] waitingQueue) returns Error? {
+        boolean errors = false;
         foreach future<pipe:Error?> asyncValue in waitingQueue {
             pipe:Error? produce = wait asyncValue;
             if produce is pipe:Error {
-                return error Error("Failed to publish events.", produce);
+                errors = true;
             }
+        }
+        if errors {
+            return error Error("Failed to publish events to some subscribers.");
         }
     }
 
@@ -124,6 +131,9 @@ public class PubSub {
     # + topicName - The name of the topic which is used to publish/subscribe
     # + return - Returns `()` if the topic is successfully added to the PubSub. Otherwise returns a `pubsub:Error`
     public isolated function createTopic(string topicName) returns Error? {
+        if self.isClosed {
+            return error Error("Topics cannot be created in a closed PubSub.");
+        }
         lock {
             if self.topics.hasKey(topicName) {
                 return error Error(string `Topic "${topicName}" already exists.`);
@@ -137,11 +147,15 @@ public class PubSub {
     # + timeout - The grace period to wait until the pipes are gracefully closed
     # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
     public isolated function gracefulShutdown(decimal timeout = 30) returns Error? {
+        if self.isClosed {
+            return error Error("Closing of a closed PubSub is not allowed.");
+        }
         self.isClosed = true;
         lock {
-            runtime:sleep(timeout);
-            check self.forceShutdown();
-            self.topics.removeAll();
+            if self.topics != {} {
+                runtime:sleep(timeout);
+                check self.forceShutdown();
+            }
         }
     }
 
@@ -149,6 +163,9 @@ public class PubSub {
     #
     # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
     public isolated function forceShutdown() returns Error? {
+        if self.isClosed && self.topics == {} {
+            return error Error("Closing of a closed PubSub is not allowed.");
+        }
         self.isClosed = true;
         lock {
             foreach pipe:Pipe[] pipes in self.topics {
