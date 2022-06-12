@@ -163,3 +163,51 @@ function testTimeoutErrorsInPubSub() returns error? {
     actualValue = (<record {|string value;|}>event_stream_2).value;
     test:assertEquals(expectedValue, actualValue);
 }
+
+@test:Config {
+    groups: ["errors"]
+}
+function testClosingOfClosedPubSub() returns error? {
+    PubSub pubsub = new();
+    check pubsub.forceShutdown();
+    Error? forceShutdown = pubsub.forceShutdown();
+    test:assertTrue(forceShutdown is Error);
+    string expectedValue = "Closing of a closed PubSub is not allowed.";
+    test:assertEquals(expectedValue, (<Error>forceShutdown).message());
+}
+
+@test:Config {
+    groups: ["errors"]
+}
+function testClosingOfGracefullyClosedPubSub() returns error? {
+    PubSub pubsub = new();
+    check pubsub.gracefulShutdown();
+    Error? forceShutdown = pubsub.forceShutdown();
+    test:assertTrue(forceShutdown is Error);
+    string expectedValue = "Closing of a closed PubSub is not allowed.";
+    test:assertEquals(expectedValue, (<Error>forceShutdown).message());
+}
+
+@test:Config {
+    groups: ["errors"]
+}
+function testGracefullyClosingOfGracefullyClosedPubSub() returns error? {
+    PubSub pubsub = new();
+    check pubsub.gracefulShutdown();
+    Error? forceShutdown = pubsub.gracefulShutdown();
+    test:assertTrue(forceShutdown is Error);
+    string expectedValue = "Closing of a closed PubSub is not allowed.";
+    test:assertEquals(expectedValue, (<Error>forceShutdown).message());
+}
+
+@test:Config {
+    groups: ["errors"]
+}
+function testGracefullyClosingOfClosedPubSub() returns error? {
+    PubSub pubsub = new();
+    check pubsub.forceShutdown();
+    Error? forceShutdown = pubsub.gracefulShutdown();
+    test:assertTrue(forceShutdown is Error);
+    string expectedValue = "Closing of a closed PubSub is not allowed.";
+    test:assertEquals(expectedValue, (<Error>forceShutdown).message());
+}
