@@ -144,7 +144,7 @@ public class PubSub {
 
     # Closes the PubSub gracefully. Waits for the provided grace period before closing all the pipes in PubSub.
     #
-    # + timeout - The grace period to wait until the pipes are gracefully closed
+    # + timeout - The grace period to wait until the pipes are closed
     # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
     public isolated function gracefulShutdown(decimal timeout = 30) returns Error? {
         if self.isClosed {
