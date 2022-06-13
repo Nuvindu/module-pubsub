@@ -78,15 +78,15 @@ public class PubSub {
     }
 
     private isolated function waitForProduceCompletion(future<pipe:Error?>[] waitingQueue) returns Error? {
-        boolean errors = false;
+        pipe:Error? pipeError = ();
         foreach future<pipe:Error?> asyncValue in waitingQueue {
             pipe:Error? produce = wait asyncValue;
             if produce is pipe:Error {
-                errors = true;
+                pipeError = produce;
             }
         }
-        if errors {
-            return error Error("Failed to publish events to some subscribers.");
+        if pipeError != () {
+            return error Error("Failed to publish events to some subscribers.", pipeError);
         }
     }
 
@@ -168,15 +168,19 @@ public class PubSub {
         }
         self.isClosed = true;
         lock {
+            pipe:Error? closingError = ();
             foreach pipe:Pipe[] pipes in self.topics {
                 foreach pipe:Pipe pipe in pipes {
                     pipe:Error? immediateClose = pipe.immediateClose();
                     if immediateClose is pipe:Error {
-                        return error Error("Failed to shut down the pubsub", immediateClose);
+                        closingError = immediateClose;
                     }
                 }
             }
             self.topics.removeAll();
+            if closingError != () {
+                return error Error("Failed to shut down the pubsub", closingError);
+            }
         }
     }
 }

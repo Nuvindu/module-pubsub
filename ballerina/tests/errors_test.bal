@@ -153,8 +153,9 @@ function testTimeoutErrorsInPubSub() returns error? {
     test:assertTrue(publish is Error);
     string expectedError = "Failed to publish events to some subscribers.";
     test:assertEquals(expectedError, (<Error>publish).message());
-
     expectedError = "Operation has timed out.";
+    test:assertEquals(expectedError, (<error>((<Error>publish).cause())).message());
+
     record {|string value;|}|error? event_stream_1 = subscriber_1.next();
     string actualValue = (<error>event_stream_1).message();
     test:assertEquals(expectedError, actualValue);
