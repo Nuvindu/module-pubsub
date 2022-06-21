@@ -3,7 +3,7 @@
 [![Build](https://github.com/Nuvindu/module-pubsub/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/Nuvindu/module-pubsub/actions/workflows/build-timestamped-master.yml)
 [![codecov](https://codecov.io/gh/Nuvindu/module-pubsub/branch/main/graph/badge.svg)](https://codecov.io/gh/Nuvindu/module-pubsub)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/Nuvindu/module-pubsub.svg)](https://github.com/Nuvindu/module-pubsub/commits/main)
-[![Github issues](https://img.shields.io/github/issues/Nuvindu/module-pubsub/module/pipe.svg?label=Open%20Issues)](https://github.com/Nuvindu/module-pubsub/labels/module%2Fpipe)
+[![Github issues](https://img.shields.io/github/issues/Nuvindu/module-pubsub/module/pubsub.svg?label=Open%20Issues)](https://github.com/Nuvindu/module-pubsub/labels/module%2Fpubsub)
 
 This library provides an events transmission model with publish/subscribe APIs.
 
