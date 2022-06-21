@@ -1,0 +1,12 @@
+[package]
+org = "nuvindu"
+name = "pubsub"
+version = "@toml.version@"
+authors = ["Nuvindu"]
+keywords = ["pubsub"]
+repository = "https://github.com/Nuvindu/module-pubsub"
+license = ["Apache-2.0"]
+distribution = "2201.0.1"
+
+[[platform.java11.dependency]]
+path = "../native/build/libs/pubsub-native-@project.version@.jar"
