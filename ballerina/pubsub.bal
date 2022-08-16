@@ -100,7 +100,7 @@ public class PubSub {
     # Every subscriber will receive a `stream` that is attached to a separate pipe instance. 
     #
     # + topicName - The name of the topic which is used to subscribe
-    # + 'limit - The maximum number of entries that are held in the pipe at once
+    # + 'limit - The maximum number of entries that are held in the pipe at once (Default limit: 5)
     # + timeout - The maximum waiting period to receive events (Default timeout: 30 seconds)
     # + typeParam - The `type` of data that is needed to be consumed. When not provided, the type is inferred 
     # using the expected type from the function
@@ -144,7 +144,7 @@ public class PubSub {
 
     # Closes the PubSub gracefully. Waits for the provided grace period before closing all the pipes in PubSub.
     #
-    # + timeout - The grace period to wait until the pipes are closed
+    # + timeout - The grace period to wait until the pipes are closed (Default timeout: 30 seconds)
     # + return - Returns `()`, if the PubSub is successfully shutdown. Otherwise returns a `pubsub:Error`
     public isolated function gracefulShutdown(decimal timeout = 30) returns Error? {
         if self.isClosed {
