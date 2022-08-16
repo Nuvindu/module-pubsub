@@ -115,7 +115,6 @@ function testAutoCreationTopicInPublishing() returns error? {
     groups: ["pubsub"]
 }
 function testWaitingInGracefulShutdown() returns error? {
-    Timer timeKeeper = new();
     PubSub pubsub = new();
     string topicName = "topic";
     stream<string, error?> subscriber = check pubsub.subscribe(topicName);
