@@ -24,6 +24,7 @@ public class PubSub {
     private boolean isClosed;
     private boolean autoCreateTopics;
     private pipe:Pipe pipe;
+    private final pipe:Timer timer;
 
     # Creates a new `pubsub:PubSub` instance.
     #
@@ -33,13 +34,14 @@ public class PubSub {
         self.isClosed = false;
         self.autoCreateTopics = autoCreateTopics;
         self.pipe = new(0);
+        self.timer = new;
     }
 
     # Publishes events into a topic of the PubSub. That will be broadcast to all the subscribers of that topic.
     #
     # + topicName - The name of the topic which is used to publish events
     # + event - Event that needs to be published to PubSub. Can be `any` type
-    # + timeout - The maximum waiting period to hold events (Default timeout: 30 seconds)
+    # + timeout - The maximum waiting period to hold events
     # + return - Returns `()` if event is successfully published. Otherwise, returns a `pubsub:Error`
     public function publish(string topicName, any event, decimal timeout = 30) returns Error? {
         if self.isClosed {
@@ -101,7 +103,7 @@ public class PubSub {
     #
     # + topicName - The name of the topic which is used to subscribe
     # + 'limit - The maximum number of entries that are held in the pipe at once
-    # + timeout - The maximum waiting period to receive events (Default timeout: 30 seconds)
+    # + timeout - The maximum waiting period to receive events
     # + typeParam - The `type` of data that is needed to be consumed. When not provided, the type is inferred 
     # using the expected type from the function
     # + return - Returns `stream` if the user is successfully subscribed to the topic. Otherwise returns a 

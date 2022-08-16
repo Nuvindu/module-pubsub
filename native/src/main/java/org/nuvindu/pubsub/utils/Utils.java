@@ -34,11 +34,13 @@ public class Utils {
     // Internal type names
     public static final BString AUTO_CREATE_TOPICS = StringUtils.fromString("autoCreateTopics");
     public static final BString IS_CLOSED = StringUtils.fromString("isClosed");
-    public static final BString PIPE_PACKAGE_NAME = StringUtils.fromString("pipe");
+    public static final BString PIPE_FIELD_NAME = StringUtils.fromString("pipe");
+    public static final BString TIMER_FIELD_NAME = StringUtils.fromString("timer");
     public static final BString TOPICS = StringUtils.fromString("topics");
     public static final String CONSUME_STREAM_METHOD = "consumeStream";
     public static final String ERROR_TYPE = "Error";
     public static final String PIPE_CLASS_NAME = "Pipe";
+    public static final String TIMER = "Timer";
 
     public static BError createError(String message) {
         return ErrorCreator.createError(getModule(), ERROR_TYPE, StringUtils.fromString(message), null, null);
