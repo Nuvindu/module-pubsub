@@ -31,13 +31,12 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
-import static org.nuvindu.pubsub.utils.ModuleUtils.getModule;
 import static org.nuvindu.pubsub.utils.Utils.AUTO_CREATE_TOPICS;
 import static org.nuvindu.pubsub.utils.Utils.CONSUME_STREAM_METHOD;
 import static org.nuvindu.pubsub.utils.Utils.IS_CLOSED;
 import static org.nuvindu.pubsub.utils.Utils.PIPE_CLASS_NAME;
-import static org.nuvindu.pubsub.utils.Utils.PIPE_PACKAGE_NAME;
-import static org.nuvindu.pubsub.utils.Utils.TIMER;
+import static org.nuvindu.pubsub.utils.Utils.PIPE_FIELD_NAME;
+import static org.nuvindu.pubsub.utils.Utils.TIMER_FIELD_NAME;
 import static org.nuvindu.pubsub.utils.Utils.TOPICS;
 import static org.nuvindu.pubsub.utils.Utils.createError;
 
@@ -45,15 +44,15 @@ import static org.nuvindu.pubsub.utils.Utils.createError;
  * Provides a message communication model with publish/subscribe APIs.
  */
 public class PubSub {
-    private static final BObject moduleTimer = ValueCreator.createObjectValue(getModule(), TIMER);
 
     public static Object subscribe(Environment environment, BObject pubsub, BString topicName, int limit,
                                    BDecimal timeout, BTypedesc typeParam) {
         if ((pubsub.get(IS_CLOSED)).equals(true)) {
             return createError("Users cannot subscribe to a closed PubSub.");
         }
-        BObject defaultPipe = pubsub.getObjectValue(PIPE_PACKAGE_NAME);
-        Object[] fields = new Object[]{limit, moduleTimer};
+        BObject defaultPipe = pubsub.getObjectValue(PIPE_FIELD_NAME);
+        BObject defaultTimer = pubsub.getObjectValue(TIMER_FIELD_NAME);
+        Object[] fields = new Object[]{limit, defaultTimer};
         BObject pipe = ValueCreator.createObjectValue(defaultPipe.getType().getPackage(), PIPE_CLASS_NAME, fields);
         try {
             addSubscriber(pubsub, topicName, pipe);
