@@ -10,12 +10,12 @@ service / on new http:Listener(9090) {
         self.data = check self.pubsub.subscribe("Topic", 50, 120);
     }
 
-    resource function get greeting() returns string|error {
+    resource function get subscribe() returns string|error {
         record {|string value;|}? next = check self.data.next();
         return (<record {|string value;|}>next).value;
     }
 
-    resource function post bar(@http:Payload string payload) returns string|error {
+    resource function post publish(@http:Payload string payload) returns string|error {
         check self.pubsub.publish("Topic", payload, 120);
         return payload;
     }
