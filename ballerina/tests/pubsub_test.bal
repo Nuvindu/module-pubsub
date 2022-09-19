@@ -127,9 +127,6 @@ function testWaitingInGracefulShutdown() returns error? {
         test:assertTrue(close !is Error);
     }
 
-    @strand {
-        thread: "any"
-    }
     worker B {
         runtime:sleep(5);
         record {|string value;|}|error? next = subscriber.next();

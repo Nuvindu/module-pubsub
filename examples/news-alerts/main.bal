@@ -42,9 +42,6 @@ public function main() returns error? {
         }
     }
 
-    @strand {
-        thread: "any"
-    }
     worker B {
         foreach int i in 0 ..< 3 {
             foreach string key in receivers.keys() {
